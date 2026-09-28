@@ -1,0 +1,65 @@
+---
+import Logo from './Logo.astro';
+import ContactList from './ContactList.astro';
+import { contacts, getContent, localePath, switchPath, LEGAL_SLUGS, type Lang } from '../lib/content';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const { ui } = getContent(lang);
+const socials = [
+  { label: 'Instagram', href: contacts.instagram },
+  { label: 'Facebook', href: contacts.facebook },
+  { label: 'Telegram', href: contacts.telegram },
+].filter((s) => s.href);
+const path = Astro.url.pathname;
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <Logo href={localePath(lang, '/')} inverse label={lang === 'uk' ? 'teamdor — на головну' : 'teamdor — home'} />
+        <p>{ui.footer.tagline}</p>
+      </div>
+      <div class="col">
+        <p class="col-title">{ui.contacts.title}</p>
+        <ContactList lang={lang} inverse />
+      </div>
+      <div class="col">
+        <p class="col-title">{ui.footer.docs}</p>
+        <ul>
+          {LEGAL_SLUGS.map((s) => <li><a href={localePath(lang, `/${s}`)}>{ui.legal[s]}</a></li>)}
+        </ul>
+        <p class="col-title sp">{ui.footer.social}</p>
+        <ul class="social">
+          {socials.map((s) => <li><a href={s.href} target="_blank" rel="noopener">{s.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+    <div class="bottom">
+      <p>© {year} teamdor. {ui.footer.rights}</p>
+      <div class="lang">
+        <a href={switchPath(path, 'uk')} hreflang="uk" lang="uk" aria-current={lang === 'uk' ? 'true' : undefined}>UA</a>
+        <span aria-hidden="true">/</span>
+        <a href={switchPath(path, 'en')} hreflang="en" lang="en" aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer { background: var(--night); color: var(--paper); padding-block: clamp(64px, 8vw, 104px) 32px; }
+  .top { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 48px; }
+  .brand p { margin-top: 20px; color: rgba(247, 245, 241, .7); max-width: 30ch; }
+  .col-title { font-size: 15px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(247, 245, 241, .6); }
+  .col-title.sp { margin-top: 32px; }
+  .col :global(.clist) { margin-top: 16px; }
+  .col ul { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 4px; }
+  .col ul a { display: inline-flex; min-height: 40px; align-items: center; color: var(--paper); text-decoration: none; font-size: 18px; }
+  .col ul a:hover { color: var(--glow); text-decoration: underline; }
+  .social { grid-auto-flow: column; justify-content: start; gap: 20px !important; }
+  .bottom { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 64px; padding-top: 24px; border-top: 1px solid rgba(247, 245, 241, .15); font-size: 15px; color: rgba(247, 245, 241, .6); }
+  .lang { display: flex; gap: 8px; align-items: center; }
+  .lang a { color: rgba(247, 245, 241, .6); text-decoration: none; font-weight: 600; min-height: 40px; display: inline-flex; align-items: center; padding: 0 4px; }
+  .lang a[aria-current] { color: var(--paper); }
+  @media (max-width: 900px) { .top { grid-template-columns: 1fr; gap: 40px; } }
+</style>

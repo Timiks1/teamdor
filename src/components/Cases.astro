@@ -1,0 +1,61 @@
+---
+import { serviceIcon } from '../lib/iso';
+import { getContent, type Lang } from '../lib/content';
+interface Props { lang: Lang }
+const { cases } = getContent(Astro.props.lang);
+const icons = ['business', 'catalog', 'shop', 'automation'];
+---
+{cases.visible && (
+<section class="section cases" id="cases" aria-labelledby="cases-title">
+  <div class="wrap">
+    <div class="section-head head reveal">
+      <div>
+        <p class="eyebrow">{cases.eyebrow}</p>
+        <h2 id="cases-title">{cases.title}</h2>
+      </div>
+      <p class="lead">{cases.text}</p>
+    </div>
+    <ul class="grid">
+      {cases.items.slice(0, 4).map((c, i) => {
+        const Tag = c.url ? 'a' : 'div';
+        return (
+          <li class="reveal" style={`transition-delay:${(i % 2) * 80}ms`}>
+            <Tag class={`case tone-${c.color || 'sand'}`} {...(c.url ? { href: c.url, target: '_blank', rel: 'noopener' } : {})}>
+              <div class="media">
+                {c.image ? <img src={c.image} alt={c.title} loading="lazy" decoding="async" width="1200" height="800" /> : <div class="ph" set:html={serviceIcon(icons[i % 4])} />}
+              </div>
+              <div class="meta">
+                <span class="tag">{c.tag}</span>
+                <h3>{c.title}</h3>
+                <p>{c.result}</p>
+              </div>
+            </Tag>
+          </li>
+        );
+      })}
+    </ul>
+    <div class="all reveal">
+      <a class="btn btn--ghost" href={cases.allHref} data-cta="cases-all">{cases.allLabel}</a>
+    </div>
+  </div>
+</section>
+)}
+
+<style>
+  .head { display: flex; justify-content: space-between; align-items: end; gap: 32px; flex-wrap: wrap; }
+  .head .lead { margin-top: 0; }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .case { display: block; color: inherit; text-decoration: none; border-radius: var(--radius); overflow: hidden; height: 100%; }
+  .tone-mist { background: var(--mist); } .tone-sand { background: var(--sand); } .tone-sage { background: var(--sage); } .tone-clay { background: var(--clay); }
+  .media { aspect-ratio: 3 / 2; display: grid; place-items: center; overflow: hidden; }
+  .media img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease-out); }
+  a.case:hover img { transform: scale(1.03); }
+  .ph { width: 46%; opacity: .9; }
+  .ph :global(svg) { width: 100%; height: auto; }
+  .meta { padding: 0 clamp(20px, 3vw, 36px) clamp(22px, 3vw, 36px); }
+  .tag { display: inline-block; font-size: 15px; font-weight: 600; padding: 6px 12px; border-radius: 99px; background: rgba(255, 255, 255, .6); }
+  .meta h3 { margin-top: 14px; font-size: clamp(1.5rem, 2.6vw, 2.25rem); }
+  .meta p { margin-top: 6px; color: var(--ink-2); }
+  .all { margin-top: 40px; display: flex; justify-content: center; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,40 @@
+---
+import { contacts, getContent, type Lang } from '../lib/content';
+interface Props { lang: Lang; inverse?: boolean }
+const { lang, inverse = false } = Astro.props;
+const { ui } = getContent(lang);
+const tel = contacts.phone.replace(/[^\d+]/g, '');
+const messengers = [
+  { label: 'Telegram', href: contacts.telegram },
+  { label: 'Viber', href: contacts.viber },
+  { label: 'WhatsApp', href: contacts.whatsapp },
+].filter((m) => m.href);
+---
+<dl class:list={['clist', { inverse }]}>
+  <div><dt>{ui.contacts.phone}</dt><dd><a href={`tel:${tel}`}>{contacts.phone}</a></dd></div>
+  <div><dt>{ui.contacts.email}</dt><dd><a href={`mailto:${contacts.email}`}>{contacts.email}</a></dd></div>
+  <div><dt>{ui.contacts.hours}</dt><dd>{lang === 'uk' ? contacts.hours : contacts.hoursEn}</dd></div>
+  <div class="msgs">
+    <dt class="sr-only">Messengers</dt>
+    <dd>
+      {messengers.map((m) => <a class="pill" href={m.href} target="_blank" rel="noopener">{m.label}</a>)}
+    </dd>
+  </div>
+</dl>
+
+<style>
+  .clist { margin: 40px 0 0; display: grid; gap: 18px; }
+  .clist > div { display: grid; gap: 2px; }
+  dt { font-size: 15px; color: var(--ink-2); }
+  dd { margin: 0; font-size: 20px; font-weight: 500; }
+  dd a { color: var(--ink); text-decoration: none; }
+  dd a:hover { color: var(--beam-deep); text-decoration: underline; }
+  .msgs dd { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .pill { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 99px; border: 1.5px solid var(--ink); font-size: 16px; font-weight: 600; }
+  .pill:hover { background: var(--ink); color: var(--paper) !important; text-decoration: none !important; }
+  .inverse dt { color: rgba(247, 245, 241, .6); }
+  .inverse dd, .inverse dd a { color: var(--paper); }
+  .inverse dd a:hover { color: var(--glow); }
+  .inverse .pill { border-color: rgba(247, 245, 241, .5); }
+  .inverse .pill:hover { background: var(--paper); color: var(--night) !important; }
+</style>

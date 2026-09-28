@@ -1,0 +1,14 @@
+{
+  "visible": true,
+  "eyebrow": "Cases",
+  "title": "Our work",
+  "text": "Our first cases are in progress. We'll show them here soon.",
+  "allLabel": "All cases",
+  "allHref": "#contact",
+  "items": [
+    { "title": "Your project here", "tag": "Business website", "result": "Name, niche and result are added in the admin panel", "image": "", "url": "", "color": "mist" },
+    { "title": "Case #2", "tag": "Catalog website", "result": "Name, niche and result are added in the admin panel", "image": "", "url": "", "color": "sand" },
+    { "title": "Case #3", "tag": "Online store", "result": "Name, niche and result are added in the admin panel", "image": "", "url": "", "color": "sage" },
+    { "title": "Case #4", "tag": "Automation", "result": "Name, niche and result are added in the admin panel", "image": "", "url": "", "color": "clay" }
+  ]
+}

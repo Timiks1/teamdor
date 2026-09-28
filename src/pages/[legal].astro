@@ -1,0 +1,11 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { LEGAL_SLUGS } from '../lib/content';
+
+export function getStaticPaths() {
+  const files = import.meta.glob('/content/uk/legal/*.md', { eager: true });
+  return LEGAL_SLUGS.map((slug) => ({ params: { legal: slug }, props: { entry: files[`/content/uk/legal/${slug}.md`] } }));
+}
+const { entry } = Astro.props as any;
+---
+<LegalPage lang="uk" entry={entry} />

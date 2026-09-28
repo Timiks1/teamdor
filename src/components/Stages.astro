@@ -1,0 +1,323 @@
+---
+import DoorIcon from './DoorIcon.astro';
+import { Iso, SHADES } from '../lib/iso';
+import { getContent, type Lang } from '../lib/content';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const { stages } = getContent(lang).home;
+const steps = stages.steps;
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// ——— Сцена: сайт збирається з лего-блоків ———
+const g = new Iso(22);
+type Group = { s: number; cls?: string; svg: string };
+const groups: Group[] = [];
+const add = (s: number, svg: string, cls = '') => groups.push({ s, svg, cls });
+// Блок, що перефарбовується на кроці 4 (до того — сірий)
+const tint = (c: string, svg: string) => `<g class="tint c-${c}">${svg}</g>`;
+
+// 01 — базова пластина
+add(1, g.box(0, 0, 0, 12, 9, 0.5, 'sand', true), 'pz-plate');
+// 02 — перші кубики по краях (задні)
+add(2, tint('clay', g.box(0, 0, 0.5, 1, 1, 1, 'var', true)) + tint('mist', g.box(11, 0, 0.5, 1, 1, 1, 'var', true)));
+// 05 — блоки-екрани встають (стоять позаду, тому малюємо раніше)
+const screen = (x: number, tone: 'mist' | 'sage', accent: string) =>
+  g.box(x, 0.2, 0.5, 3.8, 0.4, 4.2, tone) +
+  g.quadY(0.6, x + 0.3, x + 3.5, 0.85, 4.4, '#FFFFFF') +
+  g.quadY(0.6, x + 0.55, x + 3.25, 3.85, 4.15, SHADES.grey[2]) +
+  g.quadY(0.6, x + 0.55, x + 2.1, 2.1, 3.55, accent) +
+  g.quadY(0.6, x + 2.3, x + 3.25, 2.1, 3.55, SHADES.grey[1]) +
+  g.quadY(0.6, x + 0.55, x + 3.25, 1.15, 1.8, SHADES.grey[0]);
+add(5, screen(2.2, 'mist', SHADES.clay[1]) + screen(6.4, 'sage', SHADES.mist[1]), 'loose');
+// 03 — каркас сайту з сірих блоків
+add(3,
+  tint('mist', g.box(1.5, 1.2, 0.5, 9, 1, 0.6, 'var', true)) +
+  tint('clay', g.box(1.5, 2.6, 0.5, 5.5, 2.6, 1.2, 'var', true)) +
+  tint('sage', g.box(7.4, 2.6, 0.5, 3.1, 2.6, 0.9, 'var', true)) +
+  tint('sand', g.box(1.5, 5.6, 0.5, 2.8, 1.8, 0.7, 'var', true)) +
+  tint('mist', g.box(4.6, 5.6, 0.5, 2.8, 1.8, 0.7, 'var', true)) +
+  tint('clay', g.box(7.7, 5.6, 0.5, 2.8, 1.8, 0.7, 'var', true)) +
+  tint('night', g.box(1.5, 7.8, 0.5, 9, 0.8, 0.4, 'var')),
+  'loose');
+// 02 — передні кубики
+add(2, tint('sage', g.box(0, 8, 0.5, 1, 1, 1, 'var', true)) + tint('clay', g.box(11, 8, 0.5, 1, 1, 1, 'var', true)));
+// 06 — маленька копія «телефон»
+add(6,
+  g.box(13, 5.1, 0, 0.35, 2, 3.8, 'night') +
+  g.quadX(13.35, 5.25, 6.95, 0.35, 3.5, '#FFFFFF') +
+  g.quadX(13.35, 5.45, 6.75, 2.95, 3.25, SHADES.grey[2]) +
+  g.quadX(13.35, 5.45, 6.75, 1.75, 2.75, SHADES.clay[1]) +
+  g.quadX(13.35, 5.45, 6.1, 0.65, 1.5, SHADES.mist[1]),
+  'loose pz-phone');
+// 07 — позначка «зібрано»
+const [cx, cy] = g.p(12.3, -0.4, 2.6);
+add(7, `<g class="pz-check" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)})"><circle r="15" fill="#FFFFFF" stroke-width="1.5"/><path d="M-6 0.5l4 4 8-9" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>`);
+// 08 — двері-логотип стають зверху і загоряються синім
+const [hx, hy] = g.p(5.5, 3.95, 3.6);
+const doorSvg =
+  `<ellipse class="door-halo" cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" rx="60" ry="92" fill="url(#pz-halo)" stroke="none"/>` +
+  `<polygon class="door-spill" points="${g.pts([[5.3, 3.95, 1.7], [5.75, 3.95, 1.7], [7.0, 5.2, 1.7], [4.4, 5.2, 1.7]])}" fill="url(#pz-spill)" stroke="none"/>` +
+  g.box(2.9, 3.45, 1.7, 3.0, 0.5, 4.3, 'white') +
+  g.quadY(3.95, 3.1, 5.25, 1.7, 5.8, SHADES.night[1]) +
+  g.quadY(3.95, 4.7, 4.9, 3.5, 3.95, '#F7F5F1') +
+  g.quadY(3.95, 5.3, 5.75, 1.7, 5.8, '#C9C3B8', 'class="door-slit"');
+add(8, doorSvg, 'pz-door');
+
+// Під видовий бокс потрапляють усі точки, тож рамка стабільна від кроку 1 до 8
+const viewBox = g.viewBox(18);
+---
+<section class="stages" id="stages" data-stages data-steps={steps.length} aria-labelledby="stages-title">
+  <div class="track" data-track>
+  <div class="pin">
+    <div class="panel-text">
+      <div class="pt-top">
+        <p class="pt-eyebrow">{stages.eyebrow}</p>
+        <h2 id="stages-title" class="sr-only">{stages.title}</h2>
+      </div>
+      <ol class="step-list">
+        {steps.map((st, i) => (
+          <li class:list={['step', { 'is-active': i === 0 }]} data-step-i={i}>
+            <span class="step-num">{pad(i + 1)}</span>
+            <h3 class="step-title">{st.title}</h3>
+            <p class="step-text">{st.text}</p>
+            {i === 2 && <p class="step-note">{stages.prepayNote}</p>}
+            {i === steps.length - 1 && (
+              <a class="btn step-cta" href="#contact" data-cta="stages-final"><DoorIcon />{stages.finalCta}</a>
+            )}
+          </li>
+        ))}
+      </ol>
+      <div class="progress" aria-hidden="true">
+        <span class="progress-count"><b data-count>01</b> / {pad(steps.length)}</span>
+        <div class="dots">
+          {steps.map((_, i) => <button type="button" class:list={['dot', { 'is-active': i === 0 }]} data-dot={i} tabindex="-1"><span class="sr-only">{pad(i + 1)}</span></button>)}
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-art">
+      <div class="art-card">
+        <svg class="scene" viewBox={viewBox} role="img" aria-label={stages.title}>
+          <defs>
+            <radialGradient id="pz-halo"><stop offset="0" stop-color="#7FB0FF" stop-opacity=".95"/><stop offset="1" stop-color="#7FB0FF" stop-opacity="0"/></radialGradient>
+            <linearGradient id="pz-spill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FB0FF" stop-opacity=".9"/><stop offset="1" stop-color="#7FB0FF" stop-opacity="0"/></linearGradient>
+          </defs>
+          <g stroke="#191A1C" stroke-width="1.25" stroke-linejoin="round">
+            {groups.map((gr) => <g class:list={['pz-g', gr.cls]} data-s={gr.s} set:html={gr.svg} />)}
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="wrap more">
+    <details class="more-details">
+      <summary>{stages.detailsLabel}</summary>
+      <ol class="more-list">
+        {steps.map((st, i) => (
+          <li>
+            <span class="more-num">{pad(i + 1)}</span>
+            <div>
+              <h3>{st.title}</h3>
+              <p>{st.details}</p>
+              {i === 2 && <p class="more-note">{stages.prepayNote}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </details>
+  </div>
+</section>
+
+<style>
+  .stages { --pin-h: calc(100svh - var(--header-h)); position: relative; background: var(--paper); }
+  .pin { display: grid; grid-template-columns: 1fr 1fr; min-height: 640px; }
+
+  /* Ліва панель — Night */
+  .panel-text {
+    position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 24px;
+    background: var(--night); color: var(--paper);
+    padding: clamp(28px, 4vw, 56px) clamp(24px, 5vw, 72px);
+  }
+  .pt-eyebrow { font-size: 15px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(247, 245, 241, .7); }
+  .step-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 48px; align-content: center; }
+  .step-num { display: block; font-family: var(--font-display); font-weight: 600; font-size: 20px; color: rgba(247, 245, 241, .55); margin-bottom: 12px; }
+  .step-title { font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1; letter-spacing: -0.035em; }
+  .step-text { margin-top: 20px; font-size: clamp(1.25rem, 1.8vw, 1.625rem); line-height: 1.45; color: rgba(247, 245, 241, .88); max-width: 28ch; }
+  .step-note { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(247, 245, 241, .2); font-size: 17px; color: rgba(247, 245, 241, .72); max-width: 32ch; }
+  .step-cta { margin-top: 32px; }
+
+  .progress { display: flex; align-items: center; gap: 20px; }
+  .progress-count { font-size: 15px; color: rgba(247, 245, 241, .6); font-variant-numeric: tabular-nums; min-width: 64px; }
+  .progress-count b { color: var(--paper); font-weight: 600; }
+  .dots { display: flex; align-items: center; gap: 8px; }
+  .dot { width: 10px; height: 10px; padding: 0; border: 0; border-radius: 99px; background: rgba(247, 245, 241, .22); cursor: pointer; transition: width .35s var(--ease-out), background .35s; }
+  .dot.is-done { background: rgba(247, 245, 241, .6); }
+  .dot.is-active { width: 44px; background: var(--beam); box-shadow: 0 0 12px rgba(127, 176, 255, .6); }
+
+  /* Права панель — світла, з білою карткою */
+  .panel-art { display: grid; place-items: center; background: var(--sand); padding: clamp(20px, 3vw, 48px); }
+  .art-card { width: 100%; height: 100%; max-height: 720px; display: grid; place-items: center; background: var(--white); border-radius: var(--radius); padding: clamp(12px, 2vw, 32px); box-shadow: 0 1px 0 var(--line); }
+  .scene { width: 100%; height: 100%; max-height: 620px; overflow: visible; }
+
+  /* Сірий каркас → кольори бренду на кроці 4 */
+  .scene :global(.tint) { --t: #EFEEEB; --l: #DAD8D3; --r: #C3C1BB; }
+  .scene :global(polygon), .scene :global(ellipse), .scene :global(path) { transition: fill .7s ease; }
+  .is-colored .scene :global(.c-mist) { --t: #E2E7EC; --l: #CAD3DD; --r: #B1BDCB; }
+  .is-colored .scene :global(.c-sand) { --t: #EDE8DF; --l: #DDD4C5; --r: #C8BDAB; }
+  .is-colored .scene :global(.c-sage) { --t: #DEE5DD; --l: #C5D0C3; --r: #ABBAA8; }
+  .is-colored .scene :global(.c-clay) { --t: #EBDFD5; --l: #DBC8B8; --r: #C7AF9B; }
+  .is-colored .scene :global(.c-night) { --t: #25324A; --l: #0C1526; --r: #060C18; }
+
+  .pz-g { transition: opacity .5s ease, transform .75s var(--ease-spring); }
+  :global(.pz-check) path { stroke: var(--beam); }
+  .pz-g.pz-check-wrap { transform-origin: center; }
+
+  .more { padding-block: 32px clamp(72px, 10vw, 128px); }
+  .more-details { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .more-details summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 72px;
+    font-family: var(--font-display); font-weight: 600; font-size: clamp(1.25rem, 2vw, 1.5rem); cursor: pointer; list-style: none;
+  }
+  .more-details summary::-webkit-details-marker { display: none; }
+  .more-details summary::after { content: '+'; font-weight: 400; font-size: 32px; line-height: 1; }
+  .more-details[open] summary::after { content: '–'; }
+  .more-list { list-style: none; margin: 0; padding: 0 0 32px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 56px; }
+  .more-list li { display: grid; grid-template-columns: 44px 1fr; gap: 12px; }
+  .more-num { font-family: var(--font-display); font-weight: 600; color: var(--ink-2); padding-top: 2px; }
+  .more-list h3 { font-size: 1.375rem; }
+  .more-list p { margin-top: 8px; color: var(--ink-2); }
+  .more-note { font-weight: 600; color: var(--ink) !important; }
+
+  /* ——— Живий режим (є JS і рух не вимкнено) ——— */
+  :global(:root.motion) .track { height: calc(var(--pin-h) * 4.6); }
+  :global(:root.motion) .pin { position: sticky; top: var(--header-h); height: var(--pin-h); min-height: 0; }
+  :global(:root.motion) .step-list { position: relative; display: block; }
+  :global(:root.motion) .step {
+    position: absolute; left: 0; right: 0; top: 50%;
+    opacity: 0; transform: translateY(calc(-50% + 28px)); pointer-events: none;
+    transition: opacity .45s ease, transform .6s var(--ease-out);
+  }
+  :global(:root.motion) .step.is-past { transform: translateY(calc(-50% - 28px)); }
+  :global(:root.motion) .step.is-active { opacity: 1; transform: translateY(-50%); pointer-events: auto; transition-delay: .08s; }
+
+  :global(:root.motion) .pz-g { opacity: 0; transform: translateY(-46px); }
+  :global(:root.motion) .pz-g.is-on { opacity: 1; transform: none; }
+  :global(:root.motion) .pz-g.loose.is-on { transform: translateY(-7px); }
+  :global(:root.motion) .is-snapped .pz-g.loose.is-on { transform: none; transition: opacity .5s, transform .35s cubic-bezier(.5, 0, .75, 0); }
+  :global(:root.motion) .is-snapped .scene { animation: snap .45s ease .3s; }
+  @keyframes snap { 0%, 100% { transform: none; } 40% { transform: scale(1.012); } }
+
+  /* Двері: застрибують, як лампа Pixar, і загоряються */
+  :global(:root.motion) .pz-door { transform-box: fill-box; transform-origin: 50% 100%; transition: none; }
+  :global(:root.motion) .pz-door.is-on { animation: pz-hop 1s var(--ease-out) both; }
+  :global(:root.motion) .pz-door:not(.is-on) { opacity: 0; }
+  @keyframes pz-hop {
+    0% { opacity: 0; transform: translateY(-120px) scale(.9, 1.12); }
+    35% { opacity: 1; transform: translateY(0) scale(1.1, .86); }
+    52% { transform: translateY(-22px) scale(.95, 1.06); }
+    68% { transform: translateY(0) scale(1.04, .95); }
+    84% { transform: translateY(-4px) scale(1); }
+    100% { opacity: 1; transform: none; }
+  }
+  .scene :global(.door-slit) { transition: fill .3s; }
+  .scene :global(.door-halo), .scene :global(.door-spill) { opacity: 0; transition: opacity .6s ease; }
+  .is-lit .scene :global(.door-slit) { fill: #0B5FFF !important; filter: drop-shadow(0 0 4px #7FB0FF); }
+  .is-lit .scene :global(.door-halo) { opacity: .9; }
+  .is-lit .scene :global(.door-spill) { opacity: .75; }
+  :global(:root:not(.motion)) .scene :global(.door-slit) { fill: #0B5FFF !important; filter: drop-shadow(0 0 4px #7FB0FF); }
+  :global(:root:not(.motion)) .scene :global(.door-halo) { opacity: .9; }
+  :global(:root:not(.motion)) .scene :global(.door-spill) { opacity: .75; }
+  :global(:root:not(.motion)) .scene :global(.tint.c-mist) { --t: #E2E7EC; --l: #CAD3DD; --r: #B1BDCB; }
+  :global(:root:not(.motion)) .scene :global(.tint.c-sand) { --t: #EDE8DF; --l: #DDD4C5; --r: #C8BDAB; }
+  :global(:root:not(.motion)) .scene :global(.tint.c-sage) { --t: #DEE5DD; --l: #C5D0C3; --r: #ABBAA8; }
+  :global(:root:not(.motion)) .scene :global(.tint.c-clay) { --t: #EBDFD5; --l: #DBC8B8; --r: #C7AF9B; }
+  :global(:root:not(.motion)) .scene :global(.tint.c-night) { --t: #25324A; --l: #0C1526; --r: #060C18; }
+
+  /* Статичний режим (без JS або «зменшити рух»): усі етапи списком, ілюстрація зібрана */
+  :global(:root:not(.motion)) .progress { display: none; }
+  :global(:root:not(.motion)) .step-list { gap: 40px; }
+  :global(:root:not(.motion)) .step-title { font-size: clamp(1.75rem, 3vw, 2.5rem); }
+  :global(:root:not(.motion)) .step-text { font-size: 19px; margin-top: 10px; }
+  :global(:root:not(.motion)) .panel-art { position: sticky; top: var(--header-h); height: calc(100svh - var(--header-h)); align-self: start; }
+
+  @media (max-width: 900px) {
+    .pin { grid-template-columns: 1fr; }
+    .more-list { grid-template-columns: 1fr; }
+    :global(:root.motion) .pin { grid-template-rows: minmax(0, 52%) minmax(0, 48%); }
+    :global(:root.motion) .panel-text { padding: 20px 20px 18px; gap: 12px; }
+    :global(:root.motion) .step-title { font-size: clamp(2rem, 9vw, 2.75rem); }
+    :global(:root.motion) .step-text { font-size: 18px; margin-top: 12px; }
+    :global(:root.motion) .step-note { font-size: 15px; margin-top: 10px; padding-top: 10px; }
+    :global(:root.motion) .step-cta { margin-top: 16px; }
+    :global(:root.motion) .step-num { margin-bottom: 6px; font-size: 17px; }
+    .dot { width: 8px; height: 8px; }
+    .dot.is-active { width: 28px; }
+    .dots { gap: 6px; }
+    .panel-art { padding: 12px; }
+    .art-card { padding: 8px; }
+    :global(:root:not(.motion)) .panel-art { position: static; height: auto; order: -1; }
+  }
+</style>
+
+<script>
+  const sec = document.querySelector<HTMLElement>('[data-stages]');
+  const root = document.documentElement;
+  if (sec && root.classList.contains('motion')) {
+    const total = Number(sec.dataset.steps) || 8;
+    const track = sec.querySelector<HTMLElement>('[data-track]')!;
+    const pin = sec.querySelector<HTMLElement>('.pin')!;
+    const stepEls = [...sec.querySelectorAll<HTMLElement>('.step')];
+    const dots = [...sec.querySelectorAll<HTMLButtonElement>('[data-dot]')];
+    const groups = [...sec.querySelectorAll<SVGGElement>('.pz-g')];
+    const count = sec.querySelector<HTMLElement>('[data-count]')!;
+    let current = -1;
+    let litTimer: number | undefined;
+
+    const set = (i: number) => {
+      if (i === current) return;
+      current = i;
+      const n = i + 1;
+      stepEls.forEach((el, k) => {
+        el.classList.toggle('is-active', k === i);
+        el.classList.toggle('is-past', k < i);
+        el.setAttribute('aria-hidden', String(k !== i));
+      });
+      dots.forEach((d, k) => { d.classList.toggle('is-active', k === i); d.classList.toggle('is-done', k < i); });
+      groups.forEach((gEl) => gEl.classList.toggle('is-on', Number(gEl.dataset.s) <= n));
+      sec.classList.toggle('is-colored', n >= 4);
+      sec.classList.toggle('is-snapped', n >= 7);
+      clearTimeout(litTimer);
+      if (n >= total) litTimer = window.setTimeout(() => sec.classList.add('is-lit'), 750);
+      else sec.classList.remove('is-lit');
+      count.textContent = String(n).padStart(2, '0');
+    };
+
+    const headerH = () => parseFloat(getComputedStyle(root).getPropertyValue('--header-h')) || 76;
+    const update = () => {
+      const r = track.getBoundingClientRect();
+      const run = track.offsetHeight - pin.offsetHeight;
+      const p = Math.min(1, Math.max(0, (headerH() - r.top) / run));
+      set(Math.min(total - 1, Math.floor(p * total * 0.9999)));
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { update(); ticking = false; });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+
+    dots.forEach((d) => d.addEventListener('click', () => {
+      const i = Number(d.dataset.dot);
+      const run = track.offsetHeight - pin.offsetHeight;
+      const top = track.getBoundingClientRect().top + window.scrollY - headerH() + ((i + 0.5) / total) * run;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }));
+  }
+</script>

@@ -1,0 +1,367 @@
+# Адмінка teamdor (Sveltia CMS). Документація: https://sveltiacms.app/en/docs
+# Кожна зміна = коміт у репозиторій → хостинг автоматично перезбирає сайт.
+backend:
+  name: github
+  repo: Timiks1/teamdor
+  branch: main
+
+media_folder: public/img/uploads
+public_folder: /img/uploads
+
+i18n:
+  structure: multiple_folders
+  locales: [uk, en]
+  default_locale: uk
+
+collections:
+  - name: pages
+    label: Тексти сайту
+    icon: article
+    i18n: true
+    files:
+      - name: home
+        label: Головна — блоки
+        file: content/{{locale}}/home.json
+        i18n: true
+        fields:
+          - label: Hero (перший екран)
+            name: hero
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Заголовок (2–4 слова)", name: title, widget: string, i18n: true }
+              - { label: "Рядок під заголовком", name: lead, widget: text, i18n: true }
+              - { label: "Головна кнопка", name: primary, widget: string, i18n: true }
+              - { label: "Друга кнопка", name: secondary, widget: string, i18n: true }
+              - { label: "Примітка під кнопками", name: note, widget: string, i18n: true }
+          - label: «Звучить знайомо?»
+            name: pain
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+              - { label: "Заголовок", name: title, widget: string, i18n: true }
+              - label: Ситуації
+                name: items
+                widget: list
+                i18n: true
+                fields:
+                  - { label: "Заголовок", name: title, widget: string, i18n: true }
+                  - { label: "Текст", name: text, widget: text, i18n: true }
+          - label: Етапи (пазл)
+            name: stages
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+              - { label: "Заголовок (для пошуковиків)", name: title, widget: string, i18n: true }
+              - { label: "Примітка після етапу 03", name: prepayNote, widget: string, i18n: true }
+              - { label: "Кнопка «детально»", name: detailsLabel, widget: string, i18n: true }
+              - { label: "Кнопка на фіналі", name: finalCta, widget: string, i18n: true }
+              - label: Етапи (рівно 8 — під 8 кроків ілюстрації)
+                name: steps
+                widget: list
+                i18n: true
+                min: 8
+                max: 8
+                fields:
+                  - { label: "Назва", name: title, widget: string, i18n: true }
+                  - { label: "Коротка фраза", name: text, widget: text, i18n: true }
+                  - { label: "Повний опис", name: details, widget: text, i18n: true }
+          - label: Два напрямки
+            name: directions
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+              - { label: "Заголовок", name: title, widget: string, i18n: true }
+              - label: Картки
+                name: cards
+                widget: list
+                i18n: true
+                min: 2
+                max: 2
+                fields:
+                  - { label: "Заголовок", name: title, widget: string, i18n: true }
+                  - { label: "Підзаголовок", name: text, widget: string, i18n: true }
+                  - { label: "Пункти (3)", name: points, widget: list, i18n: true }
+                  - { label: "Текст кнопки-смуги", name: button, widget: string, i18n: true }
+                  - { label: "Посилання", name: href, widget: string, i18n: duplicate, default: '#contact' }
+          - label: Про нас і цифри
+            name: stats
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+              - { label: "Заголовок", name: title, widget: string, i18n: true }
+              - { label: "Текст", name: text, widget: text, i18n: true }
+              - label: Цифри (4)
+                name: items
+                widget: list
+                i18n: true
+                min: 4
+                max: 4
+                fields:
+                  - { label: "Цифра", name: value, widget: string, i18n: true }
+                  - { label: "Підпис", name: label, widget: string, i18n: true }
+          - label: Відгуки
+            name: reviews
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Показувати блок", name: visible, widget: boolean, i18n: duplicate, default: false }
+              - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+              - { label: "Заголовок", name: title, widget: string, i18n: true }
+              - label: Відгуки
+                name: items
+                widget: list
+                i18n: true
+                required: false
+                fields:
+                  - { label: "Ім'я", name: name, widget: string, i18n: true }
+                  - { label: "Компанія", name: company, widget: string, i18n: true, required: false }
+                  - { label: "Текст", name: text, widget: text, i18n: true }
+          - label: Фінальний заклик і форма
+            name: contact
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+              - { label: "Заголовок", name: title, widget: string, i18n: true }
+              - { label: "Текст", name: text, widget: text, i18n: true }
+
+      - name: services
+        label: Послуги
+        file: content/{{locale}}/services.json
+        i18n: true
+        fields:
+          - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+          - { label: "Заголовок", name: title, widget: string, i18n: true }
+          - { label: "Текст", name: text, widget: string, i18n: true }
+          - { label: "Текст посилання в картці", name: linkLabel, widget: string, i18n: true }
+          - label: Послуги
+            name: items
+            widget: list
+            i18n: true
+            fields:
+              - { label: "Ідентифікатор (латиницею, для якоря)", name: slug, widget: string, i18n: duplicate }
+              - label: Ілюстрація
+                name: icon
+                widget: select
+                i18n: duplicate
+                options: [landing, business, catalog, shop, automation, bots, redesign, support, seo, branding, custom]
+              - { label: "Назва", name: title, widget: string, i18n: true }
+              - { label: "Короткий рядок", name: text, widget: string, i18n: true }
+
+      - name: pricing
+        label: Ціни
+        file: content/{{locale}}/pricing.json
+        i18n: true
+        fields:
+          - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+          - { label: "Заголовок", name: title, widget: string, i18n: true }
+          - { label: "Текст", name: text, widget: string, i18n: true }
+          - { label: "«Входить»", name: includesLabel, widget: string, i18n: true }
+          - { label: "«Не входить»", name: excludesLabel, widget: string, i18n: true }
+          - { label: "«Строк»", name: termLabel, widget: string, i18n: true }
+          - { label: "Кнопка", name: button, widget: string, i18n: true }
+          - label: Пакети
+            name: packages
+            widget: list
+            i18n: true
+            fields:
+              - { label: "Назва", name: name, widget: string, i18n: true }
+              - { label: "Ціна (UA — у гривнях, EN — у доларах)", name: price, widget: string, i18n: true }
+              - { label: "Строк", name: term, widget: string, i18n: true }
+              - { label: "Виділити пакет", name: featured, widget: boolean, i18n: duplicate, default: false }
+              - { label: "Входить", name: includes, widget: list, i18n: true }
+              - { label: "Не входить", name: excludes, widget: list, i18n: true }
+          - { label: "Рядок під таблицею", name: note, widget: string, i18n: true }
+          - { label: "Заголовок «Як працюємо з оплатою»", name: paymentTitle, widget: string, i18n: true }
+          - label: Кроки оплати
+            name: payment
+            widget: list
+            i18n: true
+            fields:
+              - { label: "Заголовок", name: title, widget: string, i18n: true }
+              - { label: "Текст", name: text, widget: string, i18n: true }
+
+      - name: cases
+        label: Кейси
+        file: content/{{locale}}/cases.json
+        i18n: true
+        fields:
+          - { label: "Показувати блок", name: visible, widget: boolean, i18n: duplicate, default: true }
+          - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+          - { label: "Заголовок", name: title, widget: string, i18n: true }
+          - { label: "Текст", name: text, widget: string, i18n: true }
+          - { label: "Кнопка «Всі кейси»", name: allLabel, widget: string, i18n: true }
+          - { label: "Посилання «Всі кейси»", name: allHref, widget: string, i18n: duplicate }
+          - label: Кейси (на головній — перші 4)
+            name: items
+            widget: list
+            i18n: true
+            fields:
+              - { label: "Назва", name: title, widget: string, i18n: true }
+              - { label: "Тип проєкту", name: tag, widget: string, i18n: true }
+              - { label: "Результат одним рядком", name: result, widget: string, i18n: true }
+              - { label: "Зображення (3:2)", name: image, widget: image, i18n: duplicate, required: false }
+              - { label: "Посилання на сайт", name: url, widget: string, i18n: duplicate, required: false }
+              - { label: "Колір картки", name: color, widget: select, i18n: duplicate, options: [sand, mist, sage, clay], default: sand }
+
+      - name: faq
+        label: FAQ
+        file: content/{{locale}}/faq.json
+        i18n: true
+        fields:
+          - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+          - { label: "Заголовок", name: title, widget: string, i18n: true }
+          - { label: "Скільки питань показувати одразу", name: visibleCount, widget: number, i18n: duplicate, default: 6 }
+          - { label: "Кнопка «Показати ще»", name: moreLabel, widget: string, i18n: true }
+          - { label: "Кнопка «Згорнути»", name: lessLabel, widget: string, i18n: true }
+          - label: Питання
+            name: items
+            widget: list
+            i18n: true
+            summary: '{{fields.q}}'
+            fields:
+              - { label: "Питання", name: q, widget: string, i18n: true }
+              - { label: "Відповідь", name: a, widget: text, i18n: true }
+
+      - name: ui
+        label: Шапка, форма, футер, cookies, SEO
+        file: content/{{locale}}/ui.json
+        i18n: true
+        fields:
+          - label: SEO головної
+            name: seo
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Title", name: title, widget: string, i18n: true }
+              - { label: "Description", name: description, widget: text, i18n: true }
+          - label: Меню
+            name: nav
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Головна", name: home, widget: string, i18n: true }
+              - { label: "Про нас", name: about, widget: string, i18n: true }
+              - { label: "Послуги", name: services, widget: string, i18n: true }
+              - { label: "Етапи", name: stages, widget: string, i18n: true }
+              - { label: "Кейси", name: cases, widget: string, i18n: true }
+              - { label: "FAQ", name: faq, widget: string, i18n: true }
+              - { label: "Меню (моб.)", name: menu, widget: string, i18n: true }
+              - { label: "Закрити меню", name: close, widget: string, i18n: true }
+          - { label: "Головна кнопка в шапці", name: cta, widget: string, i18n: true }
+          - { label: "«Перейти до змісту»", name: skip, widget: string, i18n: true }
+          - label: Форма
+            name: form
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Ім'я", name: name, widget: string, i18n: true }
+              - { label: "Телефон", name: phone, widget: string, i18n: true }
+              - { label: "Email", name: email, widget: string, i18n: true }
+              - { label: "Месенджер", name: messenger, widget: string, i18n: true }
+              - { label: "Варіанти месенджерів (4, порядок не змінювати)", name: messengers, widget: list, i18n: true }
+              - { label: "Коментар", name: comment, widget: string, i18n: true }
+              - { label: "Підказка в коментарі", name: commentHint, widget: string, i18n: true }
+              - { label: "«необов'язково»", name: optional, widget: string, i18n: true }
+              - { label: "Кнопка", name: submit, widget: string, i18n: true }
+              - { label: "«Надсилаємо…»", name: sending, widget: string, i18n: true }
+              - { label: "Згода (текст)", name: consent, widget: string, i18n: true }
+              - { label: "Згода (посилання)", name: consentLink, widget: string, i18n: true }
+              - { label: "Помилка — порожнє поле", name: errorRequired, widget: string, i18n: true }
+              - { label: "Помилка — email", name: errorEmail, widget: string, i18n: true }
+              - { label: "Помилка — телефон", name: errorPhone, widget: string, i18n: true }
+              - { label: "Помилка — сервер", name: errorServer, widget: string, i18n: true }
+              - { label: "Префікс послуги в коментарі", name: servicePrefix, widget: string, i18n: true }
+              - { label: "Дякуємо — заголовок", name: thanksTitle, widget: string, i18n: true }
+              - { label: "Дякуємо — текст", name: thanksText, widget: string, i18n: true }
+              - { label: "Дякуємо — кнопка Telegram", name: thanksTelegram, widget: string, i18n: true }
+              - { label: "Дякуємо — на головну", name: thanksHome, widget: string, i18n: true }
+          - label: Підписи контактів
+            name: contacts
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Заголовок", name: title, widget: string, i18n: true }
+              - { label: "Телефон", name: phone, widget: string, i18n: true }
+              - { label: "Пошта", name: email, widget: string, i18n: true }
+              - { label: "Графік", name: hours, widget: string, i18n: true }
+          - label: Футер
+            name: footer
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Опис", name: tagline, widget: string, i18n: true }
+              - { label: "Документи", name: docs, widget: string, i18n: true }
+              - { label: "Соцмережі", name: social, widget: string, i18n: true }
+              - { label: "Права", name: rights, widget: string, i18n: true }
+          - label: Назви юр. сторінок
+            name: legal
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Політика конфіденційності", name: privacy, widget: string, i18n: true }
+              - { label: "Оферта", name: offer, widget: string, i18n: true }
+              - { label: "Cookies", name: cookies, widget: string, i18n: true }
+              - { label: "«Оновлено»", name: updated, widget: string, i18n: true }
+              - { label: "«На головну»", name: back, widget: string, i18n: true }
+          - label: Cookie-банер
+            name: cookie
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Текст", name: text, widget: string, i18n: true }
+              - { label: "Прийняти", name: accept, widget: string, i18n: true }
+              - { label: "Відхилити", name: decline, widget: string, i18n: true }
+              - { label: "Детальніше", name: more, widget: string, i18n: true }
+          - label: Сторінка 404
+            name: notFound
+            widget: object
+            i18n: true
+            fields:
+              - { label: "Заголовок", name: title, widget: string, i18n: true }
+              - { label: "Текст", name: text, widget: string, i18n: true }
+              - { label: "Кнопка", name: button, widget: string, i18n: true }
+
+  - name: settings
+    label: Контакти компанії
+    icon: call
+    files:
+      - name: contacts
+        label: Контакти (як на візитці)
+        file: content/contacts.json
+        fields:
+          - { label: "Бренд", name: brand, widget: string }
+          - { label: "Юр. назва", name: legalName, widget: string }
+          - { label: "Телефон", name: phone, widget: string }
+          - { label: "Email", name: email, widget: string }
+          - { label: "Telegram (посилання)", name: telegram, widget: string }
+          - { label: "Telegram (підпис)", name: telegramLabel, widget: string }
+          - { label: "Viber (посилання)", name: viber, widget: string, required: false }
+          - { label: "WhatsApp (посилання)", name: whatsapp, widget: string, required: false }
+          - { label: "Instagram", name: instagram, widget: string, required: false }
+          - { label: "Facebook", name: facebook, widget: string, required: false }
+          - { label: "Місто (UA)", name: city, widget: string }
+          - { label: "Місто (EN)", name: cityEn, widget: string }
+          - { label: "Графік (UA)", name: hours, widget: string }
+          - { label: "Графік (EN)", name: hoursEn, widget: string }
+
+  - name: legal
+    label: Юридичні сторінки
+    icon: gavel
+    folder: content/{{locale}}/legal
+    extension: md
+    format: frontmatter
+    create: false
+    delete: false
+    i18n: true
+    identifier_field: title
+    fields:
+      - { label: "Заголовок", name: title, widget: string, i18n: true }
+      - { label: "Опис для Google", name: description, widget: string, i18n: true }
+      - { label: "Дата оновлення", name: updated, widget: datetime, i18n: duplicate, date_format: 'YYYY-MM-DD', time_format: false, format: 'YYYY-MM-DD' }
+      - { label: "Текст", name: body, widget: markdown, i18n: true }

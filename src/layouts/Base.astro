@@ -1,0 +1,109 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import CookieBanner from '../components/CookieBanner.astro';
+import { contacts, getContent, htmlLang, ogLocale, switchPath, type Lang } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+  onHome?: boolean;
+  noindex?: boolean;
+  alternates?: boolean;
+}
+const { lang, title, description, onHome = false, noindex = false, alternates = true } = Astro.props;
+const { ui } = getContent(lang);
+const pageTitle = title ?? ui.seo.title;
+const pageDesc = description ?? ui.seo.description;
+const site = Astro.site!;
+const path = Astro.url.pathname;
+const canonical = new URL(path, site).href;
+const ukUrl = new URL(switchPath(path, 'uk'), site).href;
+const enUrl = new URL(switchPath(path, 'en'), site).href;
+const ogImage = new URL(lang === 'uk' ? '/og-uk.png' : '/og-en.png', site).href;
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Teamdor',
+  url: site.href,
+  logo: new URL('/favicon.svg', site).href,
+  email: contacts.email,
+  telephone: contacts.phone,
+  address: { '@type': 'PostalAddress', addressLocality: lang === 'uk' ? contacts.city : contacts.cityEn, addressCountry: 'UA' },
+  sameAs: [contacts.instagram, contacts.facebook, contacts.telegram].filter(Boolean),
+  areaServed: ['UA', 'Worldwide'],
+  description: pageDesc,
+};
+---
+<!doctype html>
+<html lang={htmlLang[lang]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDesc} />
+    {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
+    {alternates && !noindex && (
+      <>
+        <link rel="alternate" hreflang="uk" href={ukUrl} />
+        <link rel="alternate" hreflang="en" href={enUrl} />
+        <link rel="alternate" hreflang="x-default" href={ukUrl} />
+      </>
+    )}
+    <meta name="theme-color" content="#F7F5F1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="preload" href="/fonts/FixelDisplay-Bold.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/FixelText-Regular.woff2" as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="teamdor" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDesc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={ogLocale[lang]} />
+    <meta property="og:locale:alternate" content={ogLocale[lang === 'uk' ? 'en' : 'uk']} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(org)} />
+  </head>
+  <body>
+    <a class="skip" href="#main">{ui.skip}</a>
+    <Header lang={lang} onHome={onHome} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    <CookieBanner lang={lang} />
+
+    <script>
+      // Плавна поява блоків при скролі
+      const els = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+        els.forEach((el) => io.observe(el));
+      } else {
+        els.forEach((el) => el.classList.add('is-in'));
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip { position: absolute; left: 16px; top: -100px; z-index: 100; padding: 12px 18px; background: var(--ink); color: var(--paper); border-radius: 10px; }
+  .skip:focus { top: 12px; color: var(--paper); }
+</style>

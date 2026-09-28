@@ -1,0 +1,212 @@
+---
+import DoorIcon from './DoorIcon.astro';
+import ContactList from './ContactList.astro';
+import { contacts, getContent, localePath, type Lang } from '../lib/content';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const { home, ui } = getContent(lang);
+const f = ui.form;
+const messengerValues = ['telegram', 'viber', 'whatsapp', 'call'];
+---
+<section class="section contact" id="contact" aria-labelledby="contact-title">
+  <div class="wrap grid">
+    <div class="intro reveal">
+      <p class="eyebrow">{home.contact.eyebrow}</p>
+      <h2 id="contact-title">{home.contact.title}</h2>
+      <p class="lead">{home.contact.text}</p>
+      <ContactList lang={lang} />
+    </div>
+
+    <div class="card reveal" data-form-card>
+      <form class="form" method="post" action="/api/lead" novalidate data-lead-form
+        data-err-required={f.errorRequired} data-err-email={f.errorEmail} data-err-phone={f.errorPhone}
+        data-err-server={f.errorServer} data-sending={f.sending} data-prefix={f.servicePrefix}>
+        <input type="hidden" name="lang" value={lang} />
+        <input type="hidden" name="page" value="" data-page />
+        <input type="hidden" name="t" value="" data-t />
+        <!-- Пастка для ботів: людина це поле не бачить -->
+        <div class="hp" aria-hidden="true">
+          <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        <div class="field">
+          <label for="f-name">{f.name}</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required maxlength="100" />
+          <p class="err" id="f-name-err" aria-live="polite"></p>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="f-phone">{f.phone}</label>
+            <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="30" placeholder="+380" />
+            <p class="err" id="f-phone-err" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="f-email">{f.email}</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="120" />
+            <p class="err" id="f-email-err" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <fieldset class="field">
+          <legend>{f.messenger}</legend>
+          <div class="chips">
+            {f.messengers.map((m, i) => (
+              <label class="chip">
+                <input type="radio" name="messenger" value={messengerValues[i]} checked={i === 0} />
+                <span>{m}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="f-comment">{f.comment} <span class="opt">({f.optional})</span></label>
+          <textarea id="f-comment" name="comment" rows="4" maxlength="2000" placeholder={f.commentHint}></textarea>
+        </div>
+
+        <button class="btn btn--block submit" type="submit"><DoorIcon /><span data-submit-label>{f.submit}</span></button>
+        <p class="consent">{f.consent} <a href={localePath(lang, '/privacy')}>{f.consentLink}</a>.</p>
+        <p class="server-err" role="alert" hidden data-server-err></p>
+      </form>
+
+      <div class="thanks" hidden tabindex="-1" data-thanks>
+        <svg class="thanks-door" viewBox="0 0 30 40" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="36" rx="2.5" fill="#0C1526"/>
+          <rect x="16" y="19" width="2.5" height="4" rx="1.2" fill="#F7F5F1"/>
+          <rect class="thanks-light" x="24.5" y="2" width="4" height="36" rx="1.4" fill="#0B5FFF"/>
+        </svg>
+        <h3>{f.thanksTitle}</h3>
+        <p>{f.thanksText}</p>
+        <a class="btn" href={contacts.telegram} target="_blank" rel="noopener" data-cta="thanks-telegram">{f.thanksTelegram}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact { background: var(--mist); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .intro h2 { font-size: clamp(2.5rem, 5.4vw, 4.75rem); }
+  .card { background: var(--white); border-radius: var(--radius); padding: clamp(24px, 3.5vw, 48px); }
+  .form { display: grid; gap: 20px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .field { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+  label, legend { font-weight: 600; font-size: 17px; padding: 0; }
+  .opt { font-weight: 400; color: var(--ink-2); }
+  input[type='text'], input[type='tel'], input[type='email'], textarea {
+    width: 100%; min-height: 56px; padding: 14px 16px;
+    font-size: 18px; background: var(--paper); border: 1.5px solid var(--line); border-radius: 12px;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+  input::placeholder, textarea::placeholder { color: #7A7D84; }
+  input:focus, textarea:focus { outline: none; background: var(--white); border-color: var(--beam); box-shadow: 0 0 0 4px rgba(11, 95, 255, .15); }
+  .field.has-error input { border-color: #B42318; }
+  .err { min-height: 0; font-size: 15px; color: #B42318; }
+  .err:empty { display: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .chip { position: relative; }
+  .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .chip span {
+    display: inline-flex; align-items: center; min-height: 48px; padding: 0 18px;
+    border-radius: 12px; border: 1.5px solid var(--line); background: var(--paper);
+    font-weight: 500; transition: background .15s, border-color .15s, color .15s;
+  }
+  .chip input:checked + span { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .chip input:focus-visible + span { outline: 3px solid var(--beam); outline-offset: 2px; }
+  .submit { margin-top: 8px; min-height: 60px; font-size: 19px; }
+  .submit[disabled] { opacity: .7; cursor: progress; }
+  .consent { font-size: 15px; color: var(--ink-2); text-align: center; }
+  .server-err { padding: 14px 16px; border-radius: 12px; background: #FDECEA; color: #8A1C12; font-size: 16px; }
+  .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+  .thanks { display: grid; justify-items: center; text-align: center; gap: 16px; padding-block: 40px; outline: none; }
+  .thanks[hidden] { display: none; }
+  .thanks-door { width: 60px; height: 80px; overflow: visible; animation: t-hop 1s var(--ease-out) both; transform-origin: 50% 100%; }
+  .thanks-light { filter: drop-shadow(0 0 6px #7FB0FF) drop-shadow(0 0 14px rgba(127, 176, 255, .9)); animation: t-light 1s ease .7s both; }
+  .thanks h3 { font-size: clamp(2rem, 4vw, 3rem); margin-top: 8px; }
+  .thanks p { color: var(--ink-2); font-size: 20px; margin-bottom: 12px; }
+  @keyframes t-hop { 0% { transform: translateY(-30px); opacity: 0; } 35% { transform: none scale(1.1, .85); opacity: 1; } 55% { transform: translateY(-8px); } 75% { transform: none; } 100% { transform: none; } }
+  @keyframes t-light { from { opacity: 0; } to { opacity: 1; } }
+
+  @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } .chip { flex: 1 1 calc(50% - 4px); } .chip span { width: 100%; justify-content: center; } }
+</style>
+
+<script>
+  import { track } from '../lib/track';
+
+  const form = document.querySelector<HTMLFormElement>('[data-lead-form]');
+  if (form) {
+    const d = form.dataset;
+    const card = form.closest<HTMLElement>('[data-form-card]')!;
+    const thanks = card.querySelector<HTMLElement>('[data-thanks]')!;
+    const serverErr = form.querySelector<HTMLElement>('[data-server-err]')!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const label = form.querySelector<HTMLElement>('[data-submit-label]')!;
+    const comment = form.querySelector<HTMLTextAreaElement>('textarea[name="comment"]')!;
+    form.querySelector<HTMLInputElement>('[data-t]')!.value = String(Date.now());
+    form.querySelector<HTMLInputElement>('[data-page]')!.value = location.href;
+
+    // Кнопки послуг/пакетів підставляють інтерес у коментар
+    document.querySelectorAll<HTMLElement>('[data-service]').forEach((el) =>
+      el.addEventListener('click', () => {
+        const line = `${d.prefix} ${el.dataset.service}`;
+        if (!comment.value.trim() || comment.value.startsWith(d.prefix ?? '')) comment.value = line;
+      }),
+    );
+
+    const rules: Record<string, (v: string) => string> = {
+      name: (v) => (v.trim().length < 2 ? d.errRequired! : ''),
+      phone: (v) => (!v.trim() ? d.errRequired! : v.replace(/\D/g, '').length < 9 ? d.errPhone! : ''),
+      email: (v) => (!v.trim() ? d.errRequired! : /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? '' : d.errEmail!),
+    };
+    const check = (name: string) => {
+      const input = form.elements.namedItem(name) as HTMLInputElement;
+      const msg = rules[name](input.value);
+      const field = input.closest('.field')!;
+      const err = field.querySelector('.err')!;
+      field.classList.toggle('has-error', !!msg);
+      err.textContent = msg;
+      input.setAttribute('aria-invalid', String(!!msg));
+      if (msg) input.setAttribute('aria-describedby', err.id); else input.removeAttribute('aria-describedby');
+      return !msg;
+    };
+    Object.keys(rules).forEach((n) => {
+      const input = form.elements.namedItem(n) as HTMLInputElement;
+      input.addEventListener('blur', () => input.value && check(n));
+      input.addEventListener('input', () => input.closest('.field')!.classList.contains('has-error') && check(n));
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      serverErr.hidden = true;
+      const invalid = Object.keys(rules).filter((n) => !check(n));
+      if (invalid.length) {
+        (form.elements.namedItem(invalid[0]) as HTMLInputElement).focus();
+        return;
+      }
+      const original = label.textContent;
+      submit.disabled = true;
+      label.textContent = d.sending ?? '';
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        track('form_submit', { form: 'lead', messenger: String(new FormData(form).get('messenger')) });
+        form.hidden = true;
+        thanks.hidden = false;
+        thanks.focus();
+      } catch {
+        serverErr.textContent = d.errServer ?? '';
+        serverErr.hidden = false;
+      } finally {
+        submit.disabled = false;
+        label.textContent = original;
+      }
+    });
+  }
+</script>

@@ -1,0 +1,53 @@
+---
+import { getContent, type Lang } from '../lib/content';
+interface Props { lang: Lang }
+const { stats } = getContent(Astro.props.lang).home;
+const tones = ['mist', 'sand', 'sage', 'clay'];
+---
+<section class="section stats" id="about" aria-labelledby="about-title">
+  <div class="wrap">
+    <div class="section-head head reveal">
+      <div>
+        <p class="eyebrow">{stats.eyebrow}</p>
+        <h2 id="about-title">{stats.title}</h2>
+      </div>
+      <p class="lead">{stats.text}</p>
+    </div>
+  </div>
+  <ul class="cells">
+    {stats.items.map((s, i) => (
+      <li class={`cell tone-${tones[i % 4]} reveal`} style={`transition-delay:${i * 70}ms`}>
+        <span class="value">{s.value}</span>
+        <span class="label">{s.label}</span>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .head { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: end; }
+  .head .lead { max-width: 44ch; }
+  .cells { list-style: none; margin: 0; padding: 0 var(--gutter); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; max-width: 1600px; margin-inline: auto; }
+  .cell { display: flex; flex-direction: column; justify-content: space-between; gap: 48px; min-height: 300px; padding: clamp(24px, 3vw, 40px); }
+  .cell:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+  .cell:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+  .tone-mist { background: var(--mist); }
+  .tone-sand { background: var(--sand); }
+  .tone-sage { background: var(--sage); }
+  .tone-clay { background: var(--clay); }
+  .value { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.5rem, 4vw, 4.25rem); line-height: 1; letter-spacing: -0.04em; }
+  .label { font-size: 19px; color: var(--ink-2); max-width: 16ch; }
+  @media (max-width: 1100px) {
+    .cells { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cell:first-child { border-radius: var(--radius) 0 0 0; }
+    .cell:nth-child(2) { border-radius: 0 var(--radius) 0 0; }
+    .cell:nth-child(3) { border-radius: 0 0 0 var(--radius); }
+    .cell:last-child { border-radius: 0 0 var(--radius) 0; }
+  }
+  @media (max-width: 760px) { .head { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) {
+    .cell { min-height: 200px; gap: 28px; padding: 20px; }
+    .value { font-size: clamp(2rem, 10vw, 2.75rem); }
+    .label { font-size: 17px; }
+  }
+</style>

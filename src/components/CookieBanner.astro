@@ -1,0 +1,74 @@
+---
+// Банер згоди. GA4 завантажується лише після «Прийняти». Вибір зберігається в localStorage (td-consent).
+import { getContent, localePath, type Lang } from '../lib/content';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const { ui } = getContent(lang);
+const gaId = import.meta.env.PUBLIC_GA_ID ?? '';
+---
+<div class="cookie" role="region" aria-label="Cookies" hidden data-cookie data-ga={gaId}>
+  <p>{ui.cookie.text} <a href={localePath(lang, '/cookies')}>{ui.cookie.more}</a></p>
+  <div class="btns">
+    <button type="button" class="btn btn--ghost" data-consent="denied">{ui.cookie.decline}</button>
+    <button type="button" class="btn" data-consent="granted">{ui.cookie.accept}</button>
+  </div>
+</div>
+
+<style>
+  .cookie {
+    position: fixed; z-index: 60; left: 16px; right: 16px; bottom: 16px; margin-inline: auto; max-width: 720px;
+    display: flex; align-items: center; gap: 20px; padding: 18px 20px;
+    background: var(--white); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 24px 60px -20px rgba(12, 21, 38, .3);
+    font-size: 16px; line-height: 1.5;
+  }
+  .cookie[hidden] { display: none; }
+  .btns { display: flex; gap: 8px; flex: none; }
+  .btns .btn { min-height: 48px; padding: 0 18px; font-size: 16px; }
+  @media (max-width: 640px) {
+    .cookie { flex-direction: column; align-items: stretch; left: 8px; right: 8px; bottom: 8px; }
+    .btns .btn { flex: 1; }
+  }
+</style>
+
+<script>
+  const KEY = 'td-consent';
+  const box = document.querySelector<HTMLElement>('[data-cookie]');
+  const gaId = box?.dataset.ga;
+
+  const read = () => { try { return localStorage.getItem(KEY); } catch { return null; } };
+  const save = (v: string) => { try { localStorage.setItem(KEY, v); } catch { /* приватний режим */ } };
+
+  function loadGA() {
+    if (!gaId || window.gtag) return;
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+    document.head.appendChild(s);
+    const w = window as unknown as { dataLayer: unknown[] };
+    w.dataLayer = w.dataLayer || [];
+    window.gtag = function () { w.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', gaId, { anonymize_ip: true });
+  }
+
+  if (box) {
+    const state = read();
+    if (state === 'granted') loadGA();
+    else if (!state) box.hidden = false;
+    box.querySelectorAll<HTMLButtonElement>('[data-consent]').forEach((b) =>
+      b.addEventListener('click', () => {
+        const v = b.dataset.consent!;
+        save(v);
+        box.hidden = true;
+        if (v === 'granted') loadGA();
+      }),
+    );
+  }
+
+  // Подія «натиснута кнопка» для всіх CTA
+  document.addEventListener('click', (e) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-cta]');
+    if (el) window.gtag?.('event', 'cta_click', { location: el.dataset.cta, text: el.textContent?.trim().slice(0, 60) });
+  });
+</script>

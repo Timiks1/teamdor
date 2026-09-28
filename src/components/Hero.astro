@@ -1,0 +1,122 @@
+---
+import DoorIcon from './DoorIcon.astro';
+import { getContent, type Lang } from '../lib/content';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const { hero } = getContent(lang).home;
+const lines = hero.title.split(/(?<=[.!?])\s+/);
+
+// Промені зі щілини прочинених дверей
+const sx = 1364, sy0 = 250, sy1 = 700;
+const rays = [
+  { a: 270, b: 330, y0: -260, y1: 40, o: 0.55, d: 0 },
+  { a: 350, b: 420, y0: 130, y1: 330, o: 0.4, d: 1.6 },
+  { a: 450, b: 520, y0: 430, y1: 620, o: 0.6, d: 0.8 },
+  { a: 540, b: 610, y0: 700, y1: 880, o: 0.45, d: 2.4 },
+  { a: 620, b: 690, y0: 960, y1: 1240, o: 0.5, d: 1.2 },
+];
+---
+<section class="hero" id="top">
+  <div class="hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="ray" x1="1" y1="0" x2="0" y2="0">
+          <stop offset="0" stop-color="#7FB0FF" stop-opacity=".95" />
+          <stop offset=".45" stop-color="#7FB0FF" stop-opacity=".28" />
+          <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#7FB0FF" stop-opacity=".75" />
+          <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
+        </linearGradient>
+        <radialGradient id="halo">
+          <stop offset="0" stop-color="#7FB0FF" stop-opacity=".9" />
+          <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
+        </radialGradient>
+        <linearGradient id="slit" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0B5FFF" />
+          <stop offset=".5" stop-color="#5C95FF" />
+          <stop offset="1" stop-color="#0B5FFF" />
+        </linearGradient>
+      </defs>
+      <rect class="floor" x="0" y="703" width="1600" height="297" />
+      <line x1="0" y1="703" x2="1600" y2="703" class="floor-line" />
+      <g class="light">
+        <polygon class="floor-light" points={`${sx - 12},703 ${sx + 10},703 ${sx - 40},1000 ${sx - 820},1000`} fill="url(#floor)" />
+        <g class="rays">
+          {rays.map((r) => (
+            <polygon class="ray" style={`--o:${r.o};--d:${r.d}s`} points={`${sx},${r.a} ${sx},${r.b} -120,${r.y1} -120,${r.y0}`} fill="url(#ray)" />
+          ))}
+        </g>
+        <ellipse class="halo" cx={sx} cy={(sy0 + sy1) / 2} rx="120" ry="300" fill="url(#halo)" />
+      </g>
+      <g class="door">
+        <rect x={sx - 154} y={sy0 - 12} width="178" height={sy1 - sy0 + 15} rx="4" class="frame" />
+        <rect x={sx - 142} y={sy0} width={138} height={sy1 - sy0} rx="3" class="leaf" />
+        <rect x={sx - 36} y="470" width="10" height="26" rx="5" class="knob" />
+        <rect class="slit" x={sx - 2} y={sy0} width="14" height={sy1 - sy0} rx="2" fill="url(#slit)" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="wrap hero-inner">
+    <h1 class="hero-title">
+      {lines.map((l, i) => <span class="line" style={`--i:${i}`}>{l}</span>)}
+    </h1>
+    <p class="hero-lead">{hero.lead}</p>
+    <div class="hero-actions">
+      <a class="btn" href="#contact" data-cta="hero"><DoorIcon />{hero.primary}</a>
+      <a class="btn btn--ghost" href="#pricing" data-cta="hero-prices">{hero.secondary}</a>
+    </div>
+    <p class="hero-note">{hero.note}</p>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; isolation: isolate; min-height: calc(100svh - var(--header-h)); display: flex; align-items: center; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; z-index: -1; }
+  .hero-bg svg { width: 100%; height: 100%; }
+  .floor { fill: var(--sand); opacity: .55; }
+  .floor-line { stroke: var(--line); stroke-width: 1.5; }
+  .frame { fill: var(--paper); stroke: var(--ink); stroke-width: 3; }
+  .leaf { fill: var(--night); }
+  .knob { fill: var(--paper); }
+
+  .light { mix-blend-mode: multiply; }
+  .ray { opacity: var(--o); transform-box: view-box; transform-origin: 1364px 475px; animation: ray 7s ease-in-out var(--d) infinite alternate; }
+  .rays { transform-box: view-box; transform-origin: 1364px 475px; animation: sway 14s ease-in-out infinite alternate; }
+  .halo { animation: halo 5s ease-in-out infinite alternate; }
+  .floor-light { opacity: .6; }
+
+  /* Світло «вмикається» при завантаженні */
+  .light, .slit { animation: switch-on 1.4s var(--ease-out) .4s both; }
+  .light .ray { animation: ray 7s ease-in-out var(--d) infinite alternate; }
+
+  @keyframes switch-on { 0% { opacity: 0; } 30% { opacity: .9; } 40% { opacity: .3; } 100% { opacity: 1; } }
+  @keyframes ray { from { opacity: calc(var(--o) * .55); } to { opacity: var(--o); } }
+  @keyframes sway { from { transform: rotate(-1.2deg); } to { transform: rotate(1.4deg); } }
+  @keyframes halo { from { opacity: .55; } to { opacity: .95; } }
+
+  .hero-inner { position: relative; padding-block: clamp(56px, 9vw, 120px); }
+  .hero-title { font-size: clamp(2.5rem, 8vw, 7.25rem); max-width: 11ch; }
+  .line { display: block; animation: rise .9s var(--ease-out) calc(var(--i) * .09s + .1s) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(.35em); } to { opacity: 1; transform: none; } }
+  .hero-lead { font-size: clamp(1.25rem, 2vw, 1.625rem); line-height: 1.45; max-width: 30ch; margin-top: clamp(28px, 4vw, 40px); color: var(--ink); }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+  .hero-note { margin-top: 18px; font-size: 16px; color: var(--ink-2); }
+
+  @media (max-width: 900px) {
+    .hero { align-items: flex-start; }
+    .hero-bg svg { position: absolute; top: auto; bottom: 0; left: -40vw; width: 150vw; height: auto; aspect-ratio: 1600 / 1000; max-width: none; }
+    .hero-inner { padding-bottom: min(60vw, 420px); }
+    .hero-title { max-width: none; }
+  }
+  @media (max-width: 520px) {
+    .hero-actions .btn { width: 100%; }
+    .hero-bg svg { left: -76vw; width: 175vw; }
+    .hero-inner { padding-bottom: 88vw; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ray, .rays, .halo, .light, .slit, .line { animation: none !important; }
+  }
+</style>

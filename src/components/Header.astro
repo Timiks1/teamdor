@@ -1,0 +1,206 @@
+---
+import Logo from './Logo.astro';
+import DoorIcon from './DoorIcon.astro';
+import { getContent, localePath, switchPath, type Lang } from '../lib/content';
+
+interface Props { lang: Lang; onHome?: boolean }
+const { lang, onHome = true } = Astro.props;
+const { ui, services } = getContent(lang);
+const home = localePath(lang, '/');
+// На внутрішніх сторінках якорі ведуть на головну
+const a = (id: string) => (onHome ? `#${id}` : `${home}#${id}`);
+const nav = [
+  { label: ui.nav.home, href: onHome ? '#top' : home },
+  { label: ui.nav.about, href: a('about') },
+  { label: ui.nav.services, href: a('services'), dropdown: true },
+  { label: ui.nav.stages, href: a('stages') },
+  { label: ui.nav.cases, href: a('cases') },
+  { label: ui.nav.faq, href: a('faq') },
+];
+const path = Astro.url.pathname;
+const other: Lang = lang === 'uk' ? 'en' : 'uk';
+---
+<header class="site-header" data-header>
+  <div class="wrap bar">
+    <Logo href={home} animated label={lang === 'uk' ? 'teamdor — на головну' : 'teamdor — home'} />
+
+    <nav class="nav" aria-label={lang === 'uk' ? 'Головне меню' : 'Main menu'}>
+      <ul class="nav-list">
+        {nav.map((item) => item.dropdown ? (
+          <li class="has-drop" data-drop>
+            <button type="button" class="nav-link drop-toggle" aria-expanded="false" aria-controls="services-menu">
+              {item.label}
+              <svg viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="drop" id="services-menu">
+              <ul>
+                {services.items.map((s) => (
+                  <li><a href={a(`service-${s.slug}`)}>{s.title}</a></li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ) : (
+          <li><a class="nav-link" href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <div class="lang" role="group" aria-label="Мова / Language">
+        <a href={lang === 'uk' ? path : switchPath(path, 'uk')} hreflang="uk" lang="uk" aria-current={lang === 'uk' ? 'true' : undefined}>UA</a>
+        <a href={lang === 'en' ? path : switchPath(path, 'en')} hreflang="en" lang="en" aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+      </div>
+      <a class="btn header-cta" href={a('contact')} data-cta="header">
+        <DoorIcon />{ui.cta}
+      </a>
+      <button type="button" class="burger" aria-expanded="false" aria-controls="mobile-menu" data-burger>
+        <span class="sr-only" data-open-label={ui.nav.menu} data-close-label={ui.nav.close}>{ui.nav.menu}</span>
+        <span class="burger-lines" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu" hidden data-mobile-menu>
+    <div class="wrap">
+      <ul class="m-list">
+        {nav.filter((i) => !i.dropdown).map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        <li>
+          <details class="m-services">
+            <summary>{ui.nav.services}</summary>
+            <ul>
+              {services.items.map((s) => <li><a href={a(`service-${s.slug}`)}>{s.title}</a></li>)}
+            </ul>
+          </details>
+        </li>
+      </ul>
+      <div class="m-foot">
+        <a class="btn btn--block" href={a('contact')} data-cta="mobile-menu"><DoorIcon />{ui.cta}</a>
+        <a class="m-lang" href={switchPath(path, other)} hreflang={other} lang={other}>{other === 'en' ? 'English version' : 'Українська версія'}</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s;
+  }
+  /* Розмиття — у псевдоелементі, щоб не ламати position: fixed у мобільного меню */
+  .site-header::before {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background: rgba(247, 245, 241, .86);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  }
+  .site-header.is-scrolled { border-bottom-color: var(--line); }
+  .bar { display: flex; align-items: center; gap: 24px; height: var(--header-h); }
+  .nav { margin-inline: auto; }
+  .nav-list { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .nav-link {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px;
+    border: 0; background: none; border-radius: 10px;
+    font-size: 17px; font-weight: 500; color: var(--ink); text-decoration: none; cursor: pointer;
+  }
+  .nav-link:hover { background: var(--sand); color: var(--ink); }
+  .has-drop { position: relative; }
+  .drop-toggle svg { transition: transform .2s; }
+  .has-drop.is-open .drop-toggle svg { transform: rotate(180deg); }
+  .drop {
+    position: absolute; top: calc(100% + 8px); left: -12px; width: 320px;
+    background: var(--white); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 24px 60px -24px rgba(12, 21, 38, .25);
+    padding: 10px;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .18s, transform .18s var(--ease-out), visibility 0s .18s;
+  }
+  .has-drop.is-open .drop { opacity: 1; visibility: visible; transform: none; transition: opacity .18s, transform .18s var(--ease-out); }
+  .drop ul { list-style: none; margin: 0; padding: 0; }
+  .drop a { display: block; padding: 10px 14px; border-radius: 10px; color: var(--ink); text-decoration: none; font-size: 17px; line-height: 1.3; }
+  .drop a:hover { background: var(--sand); }
+
+  .actions { display: flex; align-items: center; gap: 16px; }
+  .lang { display: flex; padding: 3px; border-radius: 12px; background: var(--sand); }
+  .lang a {
+    display: grid; place-items: center; min-width: 44px; height: 38px; padding: 0 8px; border-radius: 9px;
+    font-size: 15px; font-weight: 600; color: var(--ink-2); text-decoration: none;
+  }
+  .lang a[aria-current] { background: var(--white); color: var(--ink); box-shadow: 0 1px 2px rgba(12, 21, 38, .08); }
+  .header-cta { min-height: 48px; padding: 0 20px; font-size: 17px; }
+
+  .burger { display: none; width: 48px; height: 48px; border: 0; border-radius: 12px; background: var(--sand); cursor: pointer; place-items: center; }
+  .burger-lines { display: grid; gap: 6px; width: 20px; }
+  .burger-lines i { display: block; height: 2px; background: var(--ink); border-radius: 2px; transition: transform .25s var(--ease-out); }
+  .burger[aria-expanded='true'] .burger-lines i:first-child { transform: translateY(4px) rotate(45deg); }
+  .burger[aria-expanded='true'] .burger-lines i:last-child { transform: translateY(-4px) rotate(-45deg); }
+
+  .mobile-menu {
+    position: fixed; inset: var(--header-h) 0 0; background: var(--paper);
+    overflow-y: auto; padding-block: 16px 32px; border-top: 1px solid var(--line);
+  }
+  .m-list { list-style: none; margin: 0; padding: 0; }
+  .m-list > li { border-bottom: 1px solid var(--line); }
+  .m-list > li > a, .m-services summary {
+    display: flex; align-items: center; justify-content: space-between; min-height: 64px;
+    font-family: var(--font-display); font-weight: 600; font-size: 26px; color: var(--ink); text-decoration: none; cursor: pointer; list-style: none;
+  }
+  .m-services summary::-webkit-details-marker { display: none; }
+  .m-services summary::after { content: '+'; font-weight: 400; font-size: 30px; }
+  .m-services[open] summary::after { content: '–'; }
+  .m-services ul { list-style: none; margin: 0 0 16px; padding: 0; }
+  .m-services a { display: block; padding: 10px 0; color: var(--ink-2); text-decoration: none; font-size: 19px; }
+  .m-foot { display: grid; gap: 20px; margin-top: 32px; justify-items: center; }
+  .m-lang { font-weight: 600; }
+
+  @media (max-width: 1120px) {
+    .nav { display: none; }
+    .actions { margin-left: auto; }
+    .burger { display: grid; }
+  }
+  @media (max-width: 640px) {
+    :global(:root) { --header-h: 68px; }
+    .header-cta, .lang { display: none; }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  if (header) {
+    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Випадне меню «Послуги»: клік + наведення на десктопі
+    header.querySelectorAll<HTMLElement>('[data-drop]').forEach((li) => {
+      const btn = li.querySelector('button')!;
+      const set = (open: boolean) => { li.classList.toggle('is-open', open); btn.setAttribute('aria-expanded', String(open)); };
+      let t: number | undefined;
+      btn.addEventListener('click', () => set(!li.classList.contains('is-open')));
+      li.addEventListener('mouseenter', () => { if (matchMedia('(hover: hover)').matches) { clearTimeout(t); set(true); } });
+      li.addEventListener('mouseleave', () => { if (matchMedia('(hover: hover)').matches) t = window.setTimeout(() => set(false), 160); });
+      li.addEventListener('focusout', (e) => { if (!li.contains(e.relatedTarget as Node)) set(false); });
+      li.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => set(false)));
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && li.classList.contains('is-open')) { set(false); btn.focus(); } });
+      document.addEventListener('click', (e) => { if (!li.contains(e.target as Node)) set(false); });
+    });
+
+    // Мобільне меню
+    const burger = header.querySelector<HTMLButtonElement>('[data-burger]');
+    const menu = header.querySelector<HTMLElement>('[data-mobile-menu]');
+    if (burger && menu) {
+      const label = burger.querySelector<HTMLElement>('.sr-only')!;
+      const set = (open: boolean) => {
+        burger.setAttribute('aria-expanded', String(open));
+        menu.hidden = !open;
+        document.body.style.overflow = open ? 'hidden' : '';
+        label.textContent = (open ? label.dataset.closeLabel : label.dataset.openLabel) ?? '';
+      };
+      burger.addEventListener('click', () => set(menu.hidden));
+      menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => set(false)));
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { set(false); burger.focus(); } });
+      matchMedia('(min-width: 1121px)').addEventListener('change', (e) => { if (e.matches) set(false); });
+    }
+  }
+</script>

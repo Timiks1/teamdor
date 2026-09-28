@@ -1,0 +1,71 @@
+{
+  "seo": {
+    "title": "Teamdor — websites, catalogs, stores and automation, turnkey",
+    "description": "Teamdor studio builds coded websites, turnkey. See your website first — a free clickable prototype in 48–72 hours. Fixed price in the contract, the code and domain are yours."
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "stages": "Stages",
+    "cases": "Cases",
+    "faq": "FAQ",
+    "menu": "Menu",
+    "close": "Close menu"
+  },
+  "cta": "Open the door",
+  "skip": "Skip to content",
+  "form": {
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "messenger": "Preferred messenger",
+    "messengers": ["Telegram", "Viber", "WhatsApp", "Phone call"],
+    "comment": "Comment",
+    "commentHint": "Briefly: what your business does and what you need",
+    "optional": "optional",
+    "submit": "Open the door",
+    "sending": "Sending…",
+    "consent": "By clicking the button you agree to our",
+    "consentLink": "privacy policy",
+    "errorRequired": "Please fill in this field",
+    "errorEmail": "Please check your email",
+    "errorPhone": "Please check your phone number",
+    "errorServer": "Couldn't send. Please try again or message us on Telegram.",
+    "servicePrefix": "Interested in:",
+    "thanksTitle": "Thank you!",
+    "thanksText": "We'll get back to you within one business day.",
+    "thanksTelegram": "Message us on Telegram",
+    "thanksHome": "Back to home"
+  },
+  "contacts": {
+    "title": "Contacts",
+    "phone": "Phone",
+    "email": "Email",
+    "hours": "Hours"
+  },
+  "footer": {
+    "tagline": "Turnkey IT solutions: websites, catalogs, stores, automation.",
+    "docs": "Legal",
+    "social": "Social",
+    "rights": "All rights reserved."
+  },
+  "legal": {
+    "privacy": "Privacy policy",
+    "offer": "Public offer",
+    "cookies": "Cookie policy",
+    "updated": "Updated",
+    "back": "Back to home"
+  },
+  "cookie": {
+    "text": "We use cookies for analytics to make the website better.",
+    "accept": "Accept",
+    "decline": "Essential only",
+    "more": "Learn more"
+  },
+  "notFound": {
+    "title": "This door is closed",
+    "text": "This page doesn't exist. It may have moved, or there's a typo in the address.",
+    "button": "Back to home"
+  }
+}

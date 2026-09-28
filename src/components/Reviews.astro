@@ -1,0 +1,32 @@
+---
+// Блок прихований, доки в адмінці не ввімкнуть «visible» і не додадуть перші відгуки.
+import { getContent, type Lang } from '../lib/content';
+interface Props { lang: Lang }
+const { reviews } = getContent(Astro.props.lang).home;
+const items = (reviews.items ?? []) as { name: string; company?: string; text: string }[];
+---
+{reviews.visible && items.length > 0 && (
+  <section class="section reviews" aria-labelledby="reviews-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">{reviews.eyebrow}</p>
+        <h2 id="reviews-title">{reviews.title}</h2>
+      </div>
+      <ul class="grid">
+        {items.map((r) => (
+          <li class="card reveal">
+            <blockquote>«{r.text}»</blockquote>
+            <p class="who"><b>{r.name}</b>{r.company && <span> · {r.company}</span>}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
+
+<style>
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .card { background: var(--sand); border-radius: var(--radius); padding: 32px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+  blockquote { margin: 0; font-size: 20px; }
+  .who span { color: var(--ink-2); }
+</style>

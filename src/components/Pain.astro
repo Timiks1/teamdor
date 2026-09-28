@@ -1,0 +1,40 @@
+---
+import { getContent, type Lang } from '../lib/content';
+interface Props { lang: Lang }
+const { pain } = getContent(Astro.props.lang).home;
+---
+<section class="section pain" aria-labelledby="pain-title">
+  <div class="wrap grid">
+    <div class="head reveal">
+      <p class="eyebrow">{pain.eyebrow}</p>
+      <h2 id="pain-title">{pain.title}</h2>
+    </div>
+    <ol class="items">
+      {pain.items.map((it, i) => (
+        <li class="item reveal" style={`transition-delay:${i * 70}ms`}>
+          <span class="num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <h3>{it.title}</h3>
+          <p>{it.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .pain { border-top: 1px solid var(--line); }
+  .grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .head { position: sticky; top: calc(var(--header-h) + 40px); }
+  .items { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .item { display: grid; grid-template-columns: 64px 1fr; column-gap: 20px; padding-block: 32px; border-bottom: 1px solid var(--line); }
+  .item:first-child { padding-top: 0; }
+  .num { grid-row: span 2; font-family: var(--font-display); font-weight: 600; font-size: 22px; color: var(--ink-2); padding-top: 4px; }
+  .item h3 { font-size: clamp(1.5rem, 2.6vw, 2rem); }
+  .item p { margin-top: 10px; color: var(--ink-2); max-width: 46ch; }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+    .head { position: static; }
+    .item { grid-template-columns: 1fr; }
+    .num { grid-row: auto; margin-bottom: 6px; }
+  }
+</style>
