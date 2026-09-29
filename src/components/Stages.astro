@@ -1,6 +1,5 @@
 ---
 import DoorIcon from './DoorIcon.astro';
-import { Iso, SHADES } from '../lib/iso';
 import { getContent, type Lang } from '../lib/content';
 
 interface Props { lang: Lang }
@@ -9,111 +8,15 @@ const { stages } = getContent(lang).home;
 const steps = stages.steps;
 const pad = (n: number) => String(n).padStart(2, '0');
 
-// ——— Сцена: з лего збираються наші двері-арка; на фіналі вони прочиняються і в щілині спалахує світло ———
-const g = new Iso(22);
-type Group = { s: number; cls?: string; svg: string };
-const groups: Group[] = [];
-const add = (s: number, svg: string, cls = '') => groups.push({ s, svg, cls });
-// Блок, що перефарбовується на кроці 4 (до того — сірий)
-const tint = (c: string, svg: string) => `<g class="tint c-${c}">${svg}</g>`;
-type P3 = [number, number, number];
-
-// Геометрія дверей
-const Z0 = 1.0;                       // верх ґанку
-const XL = 2.5, XR = 8.5, PW = 1.2;   // стійки: ліва x 2.5…3.7, права x 7.3…8.5
-const YB = 3.2, YF = 4.0;             // глибина арки
-const ZC = 4.6;                       // центр півкола арки
-const CX = (XL + XR) / 2, R = (XR - XL) / 2, r = R - PW;
-const OX0 = XL + PW, OW = 2 * r;      // проріз: x 3.7…7.3
-
-// Контур прорізу (прямокутник + півколо) у площині y
-const opening = (y: number, inset = 0): P3[] => {
-  const pts: P3[] = [[OX0 + inset, y, Z0], [OX0 + OW - inset, y, Z0]];
-  for (let i = 0; i <= 24; i++) {
-    const a = (Math.PI * i) / 24;
-    pts.push([CX + (r - inset) * Math.cos(a), y, ZC + (r - inset) * Math.sin(a)]);
-  }
-  return pts;
-};
-
-// Полотно дверей, прочинене назовні на кут a (петлі ліворуч)
-const HX = OX0 + 0.03, LW = OW - 0.06, LY = YF - 0.12, LT = 0.18;
-const leaf = (deg: number) => {
-  const a = (deg * Math.PI) / 180, ca = Math.cos(a), sa = Math.sin(a);
-  const W = (u: number, v: number, back = 0): P3 => [HX + u * ca + back * sa, LY + u * sa - back * ca, Z0 + v];
-  const hs = ZC - Z0, rad = LW / 2;
-  const outline = (inset: number): P3[] => {
-    const pts: P3[] = [W(inset, inset), W(LW - inset, inset)];
-    for (let i = 0; i <= 20; i++) {
-      const t = (Math.PI * i) / 20;
-      pts.push(W(rad + (rad - inset) * Math.cos(t), hs + (rad - inset) * Math.sin(t)));
-    }
-    return pts;
-  };
-  const edge = g.face([W(LW, 0), W(LW, hs), W(LW, hs, LT), W(LW, 0, LT)], SHADES.white[2]);
-  const knob: P3[] = [];
-  for (let i = 0; i < 12; i++) {
-    const t = (2 * Math.PI * i) / 12;
-    knob.push(W(LW - 0.4 + 0.11 * Math.cos(t), 1.75 + 0.11 * Math.sin(t)));
-  }
-  return edge + g.face(outline(0), SHADES.white[1]) +
-    `<polygon points="${g.pts(outline(0.32))}" fill="none" stroke-width=".9" opacity=".5"/>` +
-    g.face(knob, '#191A1C');
-};
-const LEAF_ANGLES = [0, 9, 18, 26, 32, 36, 34];
-
-// 01 — базова пластина
-add(1, g.box(0, 0, 0, 11, 8, 0.5, 'sand', true), 'pz-plate');
-// 02 — перші кубики по краях (задні) і ґанок-фундамент
-add(2,
-  tint('mist', g.box(0, 0, 0.5, 1, 1, 1, 'var', true)) + tint('sage', g.box(10, 0, 0.5, 1, 1, 1, 'var', true)) +
-  tint('clay', g.box(2.0, 3.0, 0.5, 2.4, 1.8, 0.5, 'var', true)) +
-  tint('sand', g.box(4.4, 3.0, 0.5, 2.2, 1.8, 0.5, 'var', true)) +
-  tint('clay', g.box(6.6, 3.0, 0.5, 2.4, 1.8, 0.5, 'var', true)) +
-  tint('sand', g.box(2.0, 4.8, 0.5, 2.4, 1.8, 0.5, 'var', true)) +
-  tint('mist', g.box(4.4, 4.8, 0.5, 2.2, 1.8, 0.5, 'var', true)) +
-  tint('sand', g.box(6.6, 4.8, 0.5, 2.4, 1.8, 0.5, 'var', true)));
-// 08 — світло за дверима (у площині прорізу, позаду стійок)
-const [hx, hy] = g.p(CX + 0.6, YB, ZC - 0.4);
-add(8,
-  `<ellipse class="pz-halo" cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" rx="120" ry="150" fill="url(#pz-halo)" stroke="none"/>` +
-  `<polygon class="pz-light" points="${g.pts(opening((YB + YF) / 2))}" fill="url(#pz-light)" stroke="none"/>`,
-  'pz-glow');
-// 03 — каркас: стійки з сірих цеглинок
-const pillar = (x: number) => [0, 1, 2, 3].map((k) => tint('night', g.box(x, YB, Z0 + k * 0.9, PW, YF - YB, 0.9, 'var'))).join('');
-add(3, pillar(XL) + pillar(XR - PW));
-// 05 — арка замикає проріз: виходить силует знака
-add(5, g.arch(CX, ZC, R, r, YB, YF, 'night'), 'pz-arch');
-// 08 — відсвіт на ґанку
-add(8,
-  `<polygon class="pz-spill" points="${g.pts([[OX0 + 0.2, YF, Z0], [OX0 + OW, YF, Z0], [XR + 0.4, 6.6, Z0], [OX0 + 0.6, 6.6, Z0]])}" fill="url(#pz-spill)" stroke="none"/>`,
-  'pz-glow');
-// 07 — полотно дверей (кадри відчинення перемикає скрипт)
-add(7, LEAF_ANGLES.map((d, i) => `<g class="leaf-f${i === 0 ? ' is-cur' : ''}${i === LEAF_ANGLES.length - 1 ? ' leaf-last' : ''}" data-f="${i}">${leaf(d)}</g>`).join(''), 'pz-leaf');
-// 02 — передні кубики
-add(2, tint('clay', g.box(0, 7, 0.5, 1, 1, 1, 'var', true)) + tint('mist', g.box(10, 7, 0.5, 1, 1, 1, 'var', true)));
-// 06 — маленька копія «телефон» з тим самим знаком на екрані
-const phoneMark = (() => {
-  const X = 10.35, yc = 4.5, zb = 1.2, rr = 0.42;
-  const arc: P3[] = [[X, yc - rr, zb]];
-  for (let i = 0; i <= 12; i++) { const t = (Math.PI * i) / 12; arc.push([X, yc - rr * Math.cos(t), zb + 0.7 + rr * Math.sin(t)]); }
-  arc.push([X, yc + rr, zb]);
-  return `<polyline points="${g.pts(arc)}" fill="none" stroke-width="2.2" stroke-linecap="round"/>` +
-    g.face([[X, yc + 0.08, zb], [X, yc + 0.26, zb], [X, yc + 0.26, zb + 0.95], [X, yc + 0.08, zb + 0.95]], '#0B5FFF', 'stroke="none"');
-})();
-add(6,
-  g.box(10.0, 3.5, 0.5, 0.35, 2, 3.4, 'night') +
-  g.quadX(10.35, 3.65, 5.35, 0.8, 3.7, '#FFFFFF') +
-  g.quadX(10.35, 3.85, 5.15, 3.2, 3.45, SHADES.grey[2]) + phoneMark,
-  'pz-phone');
-// 07 — позначка «зібрано»
-const [kx, ky] = g.p(11.4, -0.6, 3.4);
-add(7, `<g class="pz-check" transform="translate(${kx.toFixed(1)} ${ky.toFixed(1)})"><circle r="15" fill="#FFFFFF" stroke-width="1.5"/><path d="M-6 0.5l4 4 8-9" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>`);
-
-// У видовий бокс потрапляють усі точки всіх кроків, тож рамка стабільна від 1 до 8
-const viewBox = g.viewBox(18);
+// ——— Ілюстрація: кадри-«інструкція LEGO» (8 кроків + фінал), поверх — живе світло від синьої смуги ———
+// Кадри обрізані до спільної рамки 1298×1442; координати світла — у цій системі.
+const FRAMES = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6', 'step-7', 'step-8', 'final'];
+const img = (name: string, w: 700 | 1200) => `/img/stages/${name}-${w}.png`;
+const VW = 1298, VH = 1442;
+const BAR = { x0: 820, x1: 915, top: 569, bottom: 1005, cx: 867.5 }; // відкрита частина смуги (нижче її частково закриває телефон)
+const LIGHT_FROM = 7; // з якого кроку в кадрі є синя смуга
 ---
-<section class="stages" id="stages" data-stages data-steps={steps.length} aria-labelledby="stages-title">
+<section class="stages" id="stages" data-stages data-steps={steps.length} data-light-from={LIGHT_FROM} aria-labelledby="stages-title">
   <div class="track" data-track>
   <div class="pin">
     <div class="panel-text">
@@ -144,15 +47,38 @@ const viewBox = g.viewBox(18);
 
     <div class="panel-art">
       <div class="art-card">
-        <svg class="scene" viewBox={viewBox} role="img" aria-label={stages.title}>
+        <svg class="scene" viewBox={`0 0 ${VW} ${VH}`} role="img" aria-label={stages.title} data-scene>
           <defs>
-            <radialGradient id="pz-halo"><stop offset="0" stop-color="#7FB0FF" stop-opacity=".95"/><stop offset="1" stop-color="#7FB0FF" stop-opacity="0"/></radialGradient>
-            <linearGradient id="pz-spill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FB0FF" stop-opacity=".95"/><stop offset="1" stop-color="#7FB0FF" stop-opacity="0"/></linearGradient>
-            <linearGradient id="pz-light" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7FB0FF"/><stop offset=".55" stop-color="#3D82FF"/><stop offset="1" stop-color="#0B5FFF"/></linearGradient>
+            <radialGradient id="st-wide">
+              <stop offset="0" stop-color="#7FB0FF" stop-opacity=".75" />
+              <stop offset=".3" stop-color="#7FB0FF" stop-opacity=".42" />
+              <stop offset=".6" stop-color="#7FB0FF" stop-opacity=".14" />
+              <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient id="st-core">
+              <stop offset="0" stop-color="#5C95FF" stop-opacity=".9" />
+              <stop offset=".5" stop-color="#7FB0FF" stop-opacity=".4" />
+              <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
+            </radialGradient>
           </defs>
-          <g stroke="#191A1C" stroke-width="1.25" stroke-linejoin="round">
-            {groups.map((gr) => <g class:list={['pz-g', gr.cls]} data-s={gr.s} set:html={gr.svg} />)}
+          {FRAMES.map((name, i) => (
+            <image
+              class:list={['st-img', { 'is-cur': i === FRAMES.length - 1 }]}
+              data-i={i}
+              width={VW} height={VH}
+              href={i === FRAMES.length - 1 ? img(name, 1200) : undefined}
+              data-sm={img(name, 700)} data-lg={img(name, 1200)}
+            />
+          ))}
+          <g class="lamp" aria-hidden="true">
+            <g class="lamp-glow">
+              <ellipse cx={BAR.cx} cy="800" rx="470" ry="600" fill="url(#st-wide)" />
+              <ellipse cx={BAR.cx} cy="800" rx="160" ry="360" fill="url(#st-core)" />
+              <ellipse cx={BAR.cx} cy="1075" rx="330" ry="70" fill="url(#st-core)" />
+            </g>
+            <path class="lamp-bar" d={`M${BAR.x0},${BAR.bottom} V${BAR.top + 47.5} A47.5,47.5 0 0 1 ${BAR.x1},${BAR.top + 47.5} V${BAR.bottom} Z`} />
           </g>
+          <rect class="bar-hit" x={BAR.x0 - 40} y={BAR.top - 40} width={BAR.x1 - BAR.x0 + 80} height={BAR.bottom - BAR.top + 110} />
         </svg>
       </div>
     </div>
@@ -206,21 +132,23 @@ const viewBox = g.viewBox(18);
 
   /* Права панель — світла, з білою карткою */
   .panel-art { display: grid; place-items: center; background: var(--sand); padding: clamp(20px, 3vw, 48px); }
-  .art-card { overflow: hidden; width: 100%; height: 100%; max-height: 720px; display: grid; place-items: center; background: var(--white); border-radius: var(--radius); padding: clamp(12px, 2vw, 32px); box-shadow: 0 1px 0 var(--line); }
-  .scene { width: 100%; height: 100%; max-height: 620px; overflow: visible; }
+  .art-card { overflow: hidden; width: 100%; height: 100%; max-height: 720px; display: grid; place-items: center; background: #FDFDFD; border-radius: var(--radius); padding: clamp(12px, 2vw, 32px); box-shadow: 0 1px 0 var(--line); }
+  .scene { width: 100%; height: 100%; max-height: 640px; }
 
-  /* Сірий каркас → кольори бренду на кроці 4 */
-  .scene :global(.tint) { --t: #EFEEEB; --l: #DAD8D3; --r: #C3C1BB; }
-  .scene :global(polygon), .scene :global(ellipse), .scene :global(path) { transition: fill .7s ease; }
-  .is-colored .scene :global(.c-mist) { --t: #E2E7EC; --l: #CAD3DD; --r: #B1BDCB; }
-  .is-colored .scene :global(.c-sand) { --t: #EDE8DF; --l: #DDD4C5; --r: #C8BDAB; }
-  .is-colored .scene :global(.c-sage) { --t: #DEE5DD; --l: #C5D0C3; --r: #ABBAA8; }
-  .is-colored .scene :global(.c-clay) { --t: #EBDFD5; --l: #DBC8B8; --r: #C7AF9B; }
-  .is-colored .scene :global(.c-night) { --t: #25324A; --l: #0C1526; --r: #060C18; }
+  /* Кадри змінюють один одного плавним перетіканням */
+  .st-img { opacity: 0; transition: opacity .45s ease; }
+  .st-img.is-cur { opacity: 1; }
 
-  .pz-g { transition: opacity .5s ease, transform .75s var(--ease-spring); }
-  :global(.pz-check) path { stroke: var(--beam); }
-  .pz-g.pz-check-wrap { transform-origin: center; }
+  /* Світло: тонує білі поверхні (множення), чорні лінії лишає чіткими; смуга домальовується поверх, щоб не темніла */
+  .lamp { opacity: 0; pointer-events: none; transition: opacity 1s ease; }
+  .lamp-glow { mix-blend-mode: multiply; transform-box: fill-box; transform-origin: 50% 55%; transform: scale(.9); transition: transform .6s ease; }
+  .lamp-bar { fill: #0B5FFF; }
+  .is-light-on .lamp { opacity: .55; }        /* крок 7: світло вмикається */
+  .is-light-full .lamp { opacity: .85; }      /* фінал: двері зібрані */
+  .is-light-full.is-glow .lamp { opacity: 1; transition: opacity .45s ease-out; }
+  .is-light-full.is-glow .lamp-glow { transform: scale(1.08); transition: transform .45s ease-out; }
+  .bar-hit { fill: transparent; pointer-events: none; }
+  .is-light-full .bar-hit { pointer-events: all; cursor: default; }
 
   .more { padding-block: 32px clamp(72px, 10vw, 128px); }
   .more-details { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -250,31 +178,8 @@ const viewBox = g.viewBox(18);
   :global(:root.js) .step.is-past { transform: translateY(calc(-50% - 28px)); }
   :global(:root.js) .step.is-active { opacity: 1; transform: translateY(-50%); pointer-events: auto; transition-delay: .08s; }
 
-  /* Цеглинки падають згори й клацають на місце — без «висячих» проміжних станів */
-  :global(:root.js) .pz-g { opacity: 0; transform: translateY(-46px); }
-  :global(:root.js) .pz-g.is-on { opacity: 1; transform: none; }
-  :global(:root.js) .is-snapped .scene { animation: snap .45s ease .3s; }
-  @keyframes snap { 0%, 100% { transform: none; } 40% { transform: scale(1.012); } }
-
-  /* Полотно дверей: кадри відчинення, видно лише поточний */
-  .scene :global(.leaf-f) { display: none; }
-  .scene :global(.leaf-f.is-cur) { display: inline; }
-
-  /* Світло за дверима — лише коли двері прочинились */
-  .pz-g.pz-glow { transform: none !important; opacity: 0 !important; transition: opacity .8s ease; }
-  .is-lit .pz-g.pz-glow { opacity: 1 !important; }
-  .scene :global(.pz-halo) { opacity: .75; }
-  .scene :global(.pz-spill) { opacity: .8; }
-
-  /* Статичний режим: двері одразу прочинені й світяться */
-  :global(:root:not(.js)) .pz-g.pz-glow { opacity: 1 !important; }
-  :global(:root:not(.js)) .scene :global(.leaf-f.is-cur) { display: none; }
-  :global(:root:not(.js)) .scene :global(.leaf-f.leaf-last) { display: inline; }
-  :global(:root:not(.js)) .scene :global(.tint.c-mist) { --t: #E2E7EC; --l: #CAD3DD; --r: #B1BDCB; }
-  :global(:root:not(.js)) .scene :global(.tint.c-sand) { --t: #EDE8DF; --l: #DDD4C5; --r: #C8BDAB; }
-  :global(:root:not(.js)) .scene :global(.tint.c-sage) { --t: #DEE5DD; --l: #C5D0C3; --r: #ABBAA8; }
-  :global(:root:not(.js)) .scene :global(.tint.c-clay) { --t: #EBDFD5; --l: #DBC8B8; --r: #C7AF9B; }
-  :global(:root:not(.js)) .scene :global(.tint.c-night) { --t: #25324A; --l: #0C1526; --r: #060C18; }
+  /* Без JS: одразу фінальний кадр зі світлом */
+  :global(:root:not(.js)) .lamp { opacity: .85; }
 
   /* Статичний режим (без JS або «зменшити рух»): усі етапи списком, ілюстрація зібрана */
   :global(:root:not(.js)) .progress { display: none; }
@@ -313,20 +218,26 @@ const viewBox = g.viewBox(18);
     const pin = sec.querySelector<HTMLElement>('.pin')!;
     const stepEls = [...sec.querySelectorAll<HTMLElement>('.step')];
     const dots = [...sec.querySelectorAll<HTMLButtonElement>('[data-dot]')];
-    const groups = [...sec.querySelectorAll<SVGGElement>('.pz-g')];
     const count = sec.querySelector<HTMLElement>('[data-count]')!;
-    const frames = [...sec.querySelectorAll<SVGGElement>('.leaf-f')];
+    const scene = sec.querySelector<SVGSVGElement>('[data-scene]')!;
+    const imgs = [...sec.querySelectorAll<SVGImageElement>('.st-img')];
+    const hit = sec.querySelector<SVGRectElement>('.bar-hit')!;
+    const FINAL = imgs.length - 1;
+    const LIGHT_FROM = Number(sec.dataset.lightFrom) || 7;
     let current = -1;
-    let litTimer: number | undefined;
+    let landTimer: number | undefined;
 
-    // Двері прочиняються по кадрах, у щілині спалахує світло — виходить наш знак
-    const showFrame = (f: number) => frames.forEach((el, k) => el.classList.toggle('is-cur', k === f));
-    let frameTimers: number[] = [];
-    const openDoor = () => {
-      sec.classList.add('is-lit');
-      if (reduced) { showFrame(frames.length - 1); return; }
-      frameTimers = frames.map((_, k) => window.setTimeout(() => showFrame(k), k * 70));
+    // Кадри підвантажуються, коли блок наближається до екрана; на вузьких екранах — менші
+    let loaded = false;
+    const load = () => {
+      if (loaded) return;
+      loaded = true;
+      const small = scene.getBoundingClientRect().width < 520;
+      imgs.forEach((im) => im.setAttribute('href', (small ? im.dataset.sm : im.dataset.lg)!));
     };
+    new IntersectionObserver((e, o) => { if (e.some((x) => x.isIntersecting)) { load(); o.disconnect(); } }, { rootMargin: '1200px 0px' }).observe(sec);
+
+    const showImg = (k: number) => imgs.forEach((im, j) => im.classList.toggle('is-cur', j === k));
 
     const set = (i: number) => {
       if (i === current) return;
@@ -338,15 +249,26 @@ const viewBox = g.viewBox(18);
         el.setAttribute('aria-hidden', String(k !== i));
       });
       dots.forEach((d, k) => { d.classList.toggle('is-active', k === i); d.classList.toggle('is-done', k < i); });
-      groups.forEach((gEl) => gEl.classList.toggle('is-on', Number(gEl.dataset.s) <= n));
-      sec.classList.toggle('is-colored', n >= 4);
-      sec.classList.toggle('is-snapped', n >= 7);
-      clearTimeout(litTimer);
-      frameTimers.forEach(clearTimeout);
-      if (n >= total) litTimer = window.setTimeout(openDoor, reduced ? 0 : 650);
-      else { sec.classList.remove('is-lit'); showFrame(0); }
       count.textContent = String(n).padStart(2, '0');
+
+      clearTimeout(landTimer);
+      showImg(i);
+      sec.classList.toggle('is-light-on', n >= LIGHT_FROM);
+      sec.classList.remove('is-light-full', 'is-glow');
+      // Крок 8: деталі декору ще «в повітрі» — за мить сідають на місце, і світло горить на повну
+      if (n >= total) landTimer = window.setTimeout(() => { showImg(FINAL); sec.classList.add('is-light-full'); }, reduced ? 0 : 700);
     };
+
+    // Наведення на синю смугу — світло розгоряється, як від лампи; на сенсорних — від дотику
+    hit.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') sec.classList.add('is-glow'); });
+    hit.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') sec.classList.remove('is-glow'); });
+    let tapTimer: number | undefined;
+    hit.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      sec.classList.add('is-glow');
+      clearTimeout(tapTimer);
+      tapTimer = window.setTimeout(() => sec.classList.remove('is-glow'), 2500);
+    });
 
     const headerH = () => parseFloat(getComputedStyle(root).getPropertyValue('--header-h')) || 76;
     const update = () => {

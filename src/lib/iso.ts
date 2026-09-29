@@ -92,44 +92,6 @@ export class Iso {
     return `<polygon points="${this.pts([[x0, y0, z], [x1, y0, z], [x1, y1, z], [x0, y1, z]])}" style="fill:${fill}" ${extra}/>`;
   }
 
-  /** Довільна грань із 3D-точок */
-  face(points: [number, number, number][], fill: string, extra = ''): string {
-    return `<polygon points="${this.pts(points)}" style="fill:${fill}" ${extra}/>`;
-  }
-
-  /**
-   * Арка (напівкільце), видавлена по осі y: центр (cx, zc), зовнішній радіус R, внутрішній r,
-   * задня площина yB, передня yF. Малюється ззаду наперед, шви між сегментами сховані.
-   */
-  arch(cx: number, zc: number, R: number, r: number, yB: number, yF: number, tone: Tone | 'var', n = 22): string {
-    const [t, l, rr] = tone === 'var' ? ['var(--t)', 'var(--l)', 'var(--r)'] : SHADES[tone];
-    const th = (i: number) => (Math.PI * i) / n;
-    const P = (rad: number, a: number, y: number): [number, number, number] => [cx + rad * Math.cos(a), y, zc + rad * Math.sin(a)];
-    const seam = (c: string) => `style="fill:${c};stroke:${c};stroke-width:.8"`;
-    let out = '';
-    // внутрішня поверхня (видно лише лівий бік прорізу)
-    for (let i = n - 1; i >= 0; i--) {
-      const a0 = th(i), a1 = th(i + 1);
-      out += `<polygon points="${this.pts([P(r, a0, yB), P(r, a1, yB), P(r, a1, yF), P(r, a0, yF)])}" ${seam(rr)}/>`;
-    }
-    // зовнішня поверхня: верх — світлий, правий бік — темний
-    for (let i = n - 1; i >= 0; i--) {
-      const a0 = th(i), a1 = th(i + 1), am = (a0 + a1) / 2;
-      const c = Math.sin(am) > 0.45 ? t : Math.cos(am) > 0 ? rr : l;
-      out += `<polygon points="${this.pts([P(R, a0, yB), P(R, a1, yB), P(R, a1, yF), P(R, a0, yF)])}" ${seam(c)}/>`;
-    }
-    // контур задньої кромки
-    const back: [number, number, number][] = [];
-    for (let i = 0; i <= n; i++) back.push(P(R, th(i), yB));
-    out += `<polyline points="${this.pts(back)}" fill="none"/>`;
-    // передня грань
-    const front: [number, number, number][] = [];
-    for (let i = 0; i <= n; i++) front.push(P(R, th(i), yF));
-    for (let i = n; i >= 0; i--) front.push(P(r, th(i), yF));
-    out += `<polygon points="${this.pts(front)}" style="fill:${l}"/>`;
-    return out;
-  }
-
   viewBox(pad = 6): string {
     return `${(this.minX - pad).toFixed(0)} ${(this.minY - pad).toFixed(0)} ${(this.maxX - this.minX + pad * 2).toFixed(0)} ${(this.maxY - this.minY + pad * 2).toFixed(0)}`;
   }
