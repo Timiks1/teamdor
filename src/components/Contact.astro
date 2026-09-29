@@ -71,7 +71,7 @@ const messengerValues = ['telegram', 'viber', 'whatsapp', 'call'];
       </form>
 
       <div class="thanks" hidden tabindex="-1" data-thanks>
-        <Mark class="thanks-door" spill />
+        <Mark class="thanks-door" glow />
         <h3>{f.thanksTitle}</h3>
         <p>{f.thanksText}</p>
         <a class="btn" href={contacts.telegram} target="_blank" rel="noopener" data-cta="thanks-telegram">{f.thanksTelegram}</a>
@@ -120,13 +120,12 @@ const messengerValues = ['telegram', 'viber', 'whatsapp', 'call'];
   .thanks { display: grid; justify-items: center; text-align: center; gap: 16px; padding-block: 40px; outline: none; }
   .thanks[hidden] { display: none; }
   .thanks :global(.thanks-door) { width: 64px; height: 84px; }
-  .thanks :global(.mark-light) { transform-box: fill-box; transform-origin: 50% 100%; animation: t-fill .9s cubic-bezier(.4, 0, .2, 1) .2s both, t-glow 1.6s ease 1s both; }
-  .thanks :global(.mark-spill) { animation: t-spill 1.6s ease 1s both; }
+  .thanks :global(.mark-light) { transform-box: fill-box; transform-origin: 50% 100%; animation: t-fill .9s cubic-bezier(.4, 0, .2, 1) .2s both; }
+  .thanks :global(.mark-glow) { animation: t-glow 1.8s ease 1s both; }
   .thanks h3 { font-size: clamp(2rem, 4vw, 3rem); margin-top: 8px; }
   .thanks p { color: var(--ink-2); font-size: 20px; margin-bottom: 12px; }
   @keyframes t-fill { from { transform: scaleY(0); } to { transform: none; } }
-  @keyframes t-glow { 0%, 100% { filter: none; } 30% { filter: drop-shadow(0 0 8px #7FB0FF) drop-shadow(0 0 18px rgba(127, 176, 255, .8)); } }
-  @keyframes t-spill { 0%, 100% { opacity: 0; } 30% { opacity: .8; } }
+  @keyframes t-glow { 0%, 100% { opacity: 0; } 30% { opacity: 1; } }
 
   @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
   @media (max-width: 560px) { .row { grid-template-columns: 1fr; } .chip { flex: 1 1 calc(50% - 4px); } .chip span { width: 100%; justify-content: center; } }

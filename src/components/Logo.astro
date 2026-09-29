@@ -12,7 +12,7 @@ interface Props {
 const { href = '/', inverse = false, glow = false, label = 'teamdor — на головну' } = Astro.props;
 ---
 <a href={href} class:list={['logo', { 'logo--inverse': inverse, 'logo--glow': glow }]} aria-label={label} data-logo-glow={glow ? '' : undefined}>
-  <Mark class="logo-mark" spill={glow} />
+  <Mark class="logo-mark" glow={glow} />
   <span class="logo-word">teamdor</span>
 </a>
 
@@ -23,12 +23,8 @@ const { href = '/', inverse = false, glow = false, label = 'teamdor — на г�
   .logo-word { font-family: var(--font-display); font-weight: 500; font-size: 30px; letter-spacing: -0.02em; padding-bottom: 4px; }
   .logo--inverse, .logo--inverse:hover { color: var(--paper); }
 
-  /* Свічення: інтенсивність --g (0…1) задає скрипт залежно від відстані до курсора */
-  .logo--glow :global(.mark-light) {
-    filter: drop-shadow(0 0 calc(1px + var(--g) * 7px) rgba(127, 176, 255, calc(var(--g) * 1)))
-            drop-shadow(0 0 calc(var(--g) * 16px) rgba(127, 176, 255, calc(var(--g) * .7)));
-  }
-  .logo--glow :global(.mark-spill) { opacity: calc(var(--g) * .85); }
+  /* Свічення: інтенсивність --g (0…1) задає скрипт залежно від відстані до курсора — змінюється лише прозорість */
+  .logo--glow :global(.mark-glow) { opacity: var(--g); }
 
   /* Поява: світло «наливається» знизу вгору, як у фірмовому лоадері */
   .logo--glow :global(.mark-light) { transform-box: fill-box; transform-origin: 50% 100%; animation: light-in .9s cubic-bezier(.4, 0, .2, 1) .2s both; }

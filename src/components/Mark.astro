@@ -3,19 +3,44 @@
 // світло — смуга 13×52, лівий край x = 7, радіус 6,5, низ урівень з основою арки.
 // compact — для дрібних розмірів (<22 px): обводка 6,5, смуга ширша на 2.
 // mono — одноколірна версія: смуга чорнильна (або колір currentColor).
+// glow — ореол навколо смуги й відсвіт на підлозі. Малюються градієнтами, а не CSS-фільтрами:
+// фільтри на елементах SVG браузер обрізає по рамці, і світіння «мерехтить». Тут змінюється лише прозорість.
 interface Props {
   class?: string;
   compact?: boolean;
   mono?: boolean;
-  spill?: boolean; // відсвіт на підлозі (для свічення логотипа)
+  glow?: boolean;
   title?: string;
 }
-const { class: cls, compact = false, mono = false, spill = false, title } = Astro.props;
+const { class: cls, compact = false, mono = false, glow = false, title } = Astro.props;
 const sw = compact ? 6.5 : 5.5;
 const bw = compact ? 15 : 13;
+const cx = 7 + bw / 2;
+// Унікальні id градієнтів, щоб кілька знаків на сторінці не конфліктували
+const uid = `m${Math.random().toString(36).slice(2, 8)}`;
 ---
 <svg class:list={['mark', cls]} viewBox="-34 -42 68 88" role={title ? 'img' : undefined} aria-label={title} aria-hidden={title ? undefined : 'true'} focusable="false">
-  {spill && <ellipse class="mark-spill" cx="13" cy="40" rx="30" ry="5" />}
+  {glow && (
+    <>
+      <defs>
+        <radialGradient id={`${uid}-h`}>
+          <stop offset="0" stop-color="#7FB0FF" stop-opacity="1" />
+          <stop offset=".35" stop-color="#7FB0FF" stop-opacity=".8" />
+          <stop offset=".7" stop-color="#7FB0FF" stop-opacity=".3" />
+          <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id={`${uid}-s`}>
+          <stop offset="0" stop-color="#5C95FF" stop-opacity="1" />
+          <stop offset=".5" stop-color="#7FB0FF" stop-opacity=".55" />
+          <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <g class="mark-glow">
+        <ellipse cx={cx} cy="11" rx="36" ry="58" fill={`url(#${uid}-h)`} />
+        <ellipse cx={cx} cy="39" rx="46" ry="9" fill={`url(#${uid}-s)`} />
+      </g>
+    </>
+  )}
   <path class="mark-arch" d="M-28,37 L-28,-9 A28,28 0 0 1 28,-9 L28,37" fill="none" stroke-width={sw} stroke-linecap="round" />
   <rect class:list={['mark-light', { 'mark-light--mono': mono }]} x="7" y="-15" width={bw} height="52" rx={bw / 2} />
 </svg>
@@ -25,5 +50,5 @@ const bw = compact ? 15 : 13;
   .mark-arch { stroke: currentColor; }
   .mark-light { fill: var(--beam); }
   .mark-light--mono { fill: currentColor; }
-  .mark-spill { fill: var(--glow); opacity: 0; filter: blur(4px); }
+  .mark-glow { opacity: 0; }
 </style>
