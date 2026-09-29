@@ -6,52 +6,36 @@ const { lang } = Astro.props;
 const { hero } = getContent(lang).home;
 const lines = hero.title.split(/(?<=[.!?])\s+/);
 
-// Знак-арка на «підлозі»; промені виходять зі смуги світла (геометрія знака × K)
+// Знак-арка (геометрія знака × K); при наведенні на смугу світла навколо неї розгоряється ореол, як від лампи
 const K = 5.4, CX = 1290, BASE = 703;
 const bar = { x: CX + 7 * K, w: 13 * K, h: 52 * K };
-const sx = bar.x + bar.w / 2;
-const sy0 = BASE - bar.h, sy1 = BASE;
+const bx = bar.x + bar.w / 2, by = BASE - bar.h / 2;
 const archD = `M${CX - 28 * K},${BASE} L${CX - 28 * K},${BASE - 46 * K} A${28 * K},${28 * K} 0 0 1 ${CX + 28 * K},${BASE - 46 * K} L${CX + 28 * K},${BASE}`;
-const rays = [
-  { a: sy0 + 10, b: sy0 + 60, y0: -260, y1: 40, o: 0.55, d: 0 },
-  { a: sy0 + 70, b: sy0 + 120, y0: 130, y1: 330, o: 0.4, d: 1.6 },
-  { a: sy0 + 130, b: sy0 + 180, y0: 430, y1: 620, o: 0.6, d: 0.8 },
-  { a: sy0 + 190, b: sy0 + 235, y0: 700, y1: 880, o: 0.45, d: 2.4 },
-  { a: sy0 + 240, b: sy1 - 6, y0: 960, y1: 1240, o: 0.5, d: 1.2 },
-];
 ---
 <section class="hero" id="top" data-hero>
   <div class="hero-bg" aria-hidden="true">
     <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
       <defs>
-        <linearGradient id="ray" x1="1" y1="0" x2="0" y2="0">
-          <stop offset="0" stop-color="#7FB0FF" stop-opacity=".95" />
-          <stop offset=".45" stop-color="#7FB0FF" stop-opacity=".28" />
+        <radialGradient id="lamp-wide">
+          <stop offset="0" stop-color="#7FB0FF" stop-opacity=".7" />
+          <stop offset=".25" stop-color="#7FB0FF" stop-opacity=".42" />
+          <stop offset=".55" stop-color="#7FB0FF" stop-opacity=".14" />
           <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
-        </linearGradient>
-        <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#7FB0FF" stop-opacity=".75" />
-          <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
-        </linearGradient>
-        <radialGradient id="halo">
-          <stop offset="0" stop-color="#7FB0FF" stop-opacity=".9" />
+        </radialGradient>
+        <radialGradient id="lamp-core">
+          <stop offset="0" stop-color="#5C95FF" stop-opacity=".95" />
+          <stop offset=".5" stop-color="#7FB0FF" stop-opacity=".45" />
           <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
         </radialGradient>
       </defs>
-      <rect class="floor" x="0" y="703" width="1600" height="297" />
-      <line x1="0" y1="703" x2="1600" y2="703" class="floor-line" />
-      <g class="light">
-        <polygon class="floor-light" points={`${bar.x},703 ${bar.x + bar.w},703 ${sx - 20},1000 ${sx - 820},1000`} fill="url(#floor)" />
-        <g class="rays">
-          {rays.map((r) => (
-            <polygon class="ray" style={`--o:${r.o};--d:${r.d}s`} points={`${sx},${r.a} ${sx},${r.b} -120,${r.y1} -120,${r.y0}`} fill="url(#ray)" />
-          ))}
-        </g>
-        <ellipse class="halo" cx={sx} cy={(sy0 + sy1) / 2 + 20} rx="150" ry="230" fill="url(#halo)" />
+      <g class="glow">
+        <ellipse cx={bx} cy={by} rx="300" ry="380" fill="url(#lamp-wide)" />
+        <ellipse cx={bx} cy={by} rx="90" ry="210" fill="url(#lamp-core)" />
+        <ellipse cx={bx} cy={BASE + 4} rx="190" ry="28" fill="url(#lamp-core)" />
       </g>
       <g class="door">
         <path d={archD} class="arch" />
-        <rect class="slit" x={bar.x} y={sy0} width={bar.w} height={bar.h} rx={bar.w / 2} />
+        <rect class="slit" x={bar.x} y={BASE - bar.h} width={bar.w} height={bar.h} rx={bar.w / 2} />
       </g>
     </svg>
   </div>
@@ -70,23 +54,29 @@ const rays = [
 </section>
 
 <script>
-  // Відстань від курсора до смуги світла → яскравість світла в hero
+  // Наведення на смугу світла → ореол, як від лампи. Смуга лежить під текстом, тому влучання рахуємо за координатами.
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   const bar = hero?.querySelector<SVGRectElement>('.slit');
-  if (hero && bar && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    const RADIUS = 700;
-    let px = -1e4, py = -1e4, raf = 0;
-    const paint = () => {
-      raf = 0;
+  if (hero && bar) {
+    const PAD = 18; // px — невеликий запас навколо смуги, щоб легше влучити
+    const hit = (x: number, y: number) => {
       const r = bar.getBoundingClientRect();
-      const d = Math.hypot(px - (r.left + r.width / 2), py - (r.top + r.height / 2));
-      const g = Math.max(0, 1 - d / RADIUS);
-      hero.style.setProperty('--g', (g * g * (3 - 2 * g)).toFixed(3));
+      return x >= r.left - PAD && x <= r.right + PAD && y >= r.top - PAD && y <= r.bottom + PAD;
     };
-    const queue = () => { if (!raf) raf = requestAnimationFrame(paint); };
-    window.addEventListener('pointermove', (e) => { px = e.clientX; py = e.clientY; queue(); }, { passive: true });
+    let raf = 0, px = -1e4, py = -1e4;
+    const check = () => { raf = 0; hero.classList.toggle('is-glow', hit(px, py)); };
+    const queue = () => { if (!raf) raf = requestAnimationFrame(check); };
+    window.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { px = e.clientX; py = e.clientY; queue(); } }, { passive: true });
     window.addEventListener('scroll', queue, { passive: true });
     document.addEventListener('pointerleave', () => { px = py = -1e4; queue(); });
+    // Сенсорні екрани: ореол загоряється від дотику до смуги й за кілька секунд гасне
+    let t: number | undefined;
+    window.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' || !hit(e.clientX, e.clientY)) return;
+      hero.classList.add('is-glow');
+      clearTimeout(t);
+      t = window.setTimeout(() => hero.classList.remove('is-glow'), 2500);
+    }, { passive: true });
   }
 </script>
 
@@ -94,21 +84,12 @@ const rays = [
   .hero { position: relative; isolation: isolate; min-height: calc(100svh - var(--header-h)); display: flex; align-items: center; overflow: hidden; }
   .hero-bg { position: absolute; inset: 0; z-index: -1; }
   .hero-bg svg { width: 100%; height: 100%; }
-  .floor { fill: var(--sand); opacity: .55; }
-  .floor-line { stroke: var(--line); stroke-width: 1.5; }
   .arch { fill: none; stroke: var(--ink); stroke-width: 30; stroke-linecap: round; }
   .slit { fill: var(--beam); }
 
-  /* Світло розгоряється, коли курсор наближається до дверей: --g (0…1) задає скрипт.
-     Здалеку — приглушене, біля дверей — на повну. Без миготіння при завантаженні. */
-  .hero { --g: 0; transition: --g .35s ease-out; }
-  .light { mix-blend-mode: multiply; opacity: calc(.3 + var(--g) * .7); }
-  .ray { opacity: var(--o); }
-  .rays { transform-box: view-box; transform-origin: 1363px 560px; transform: rotate(calc(var(--g) * 1.5deg)); }
-  .halo { opacity: calc(.35 + var(--g) * .65); transform-box: fill-box; transform-origin: center; transform: scale(calc(.85 + var(--g) * .3)); }
-  .floor-light { opacity: .6; }
-  /* На сенсорних екранах курсора немає — світло горить рівно */
-  @media (hover: none), (pointer: coarse) { .hero { --g: .75; } }
+  /* Ореол «як від лампи»: розгоряється при наведенні на смугу, плавно гасне після */
+  .glow { opacity: 0; transform-box: fill-box; transform-origin: center; transform: scale(.92); transition: opacity .8s ease, transform .8s ease; }
+  .hero.is-glow .glow { opacity: 1; transform: none; transition: opacity .45s ease-out, transform .45s ease-out; }
 
   .hero-inner { position: relative; padding-block: clamp(56px, 9vw, 120px); }
   .hero-title { font-size: clamp(2.5rem, 8vw, 7.25rem); max-width: 11ch; }
