@@ -20,7 +20,7 @@ const rays = [
   { a: sy0 + 240, b: sy1 - 6, y0: 960, y1: 1240, o: 0.5, d: 1.2 },
 ];
 ---
-<section class="hero" id="top">
+<section class="hero" id="top" data-hero>
   <div class="hero-bg" aria-hidden="true">
     <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
       <defs>
@@ -69,6 +69,27 @@ const rays = [
   </div>
 </section>
 
+<script>
+  // Відстань від курсора до смуги світла → яскравість світла в hero
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const bar = hero?.querySelector<SVGRectElement>('.slit');
+  if (hero && bar && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const RADIUS = 700;
+    let px = -1e4, py = -1e4, raf = 0;
+    const paint = () => {
+      raf = 0;
+      const r = bar.getBoundingClientRect();
+      const d = Math.hypot(px - (r.left + r.width / 2), py - (r.top + r.height / 2));
+      const g = Math.max(0, 1 - d / RADIUS);
+      hero.style.setProperty('--g', (g * g * (3 - 2 * g)).toFixed(3));
+    };
+    const queue = () => { if (!raf) raf = requestAnimationFrame(paint); };
+    window.addEventListener('pointermove', (e) => { px = e.clientX; py = e.clientY; queue(); }, { passive: true });
+    window.addEventListener('scroll', queue, { passive: true });
+    document.addEventListener('pointerleave', () => { px = py = -1e4; queue(); });
+  }
+</script>
+
 <style>
   .hero { position: relative; isolation: isolate; min-height: calc(100svh - var(--header-h)); display: flex; align-items: center; overflow: hidden; }
   .hero-bg { position: absolute; inset: 0; z-index: -1; }
@@ -78,20 +99,16 @@ const rays = [
   .arch { fill: none; stroke: var(--ink); stroke-width: 30; stroke-linecap: round; }
   .slit { fill: var(--beam); }
 
-  .light { mix-blend-mode: multiply; }
-  .ray { opacity: var(--o); transform-box: view-box; transform-origin: 1363px 560px; animation: ray 7s ease-in-out var(--d) infinite alternate; }
-  .rays { transform-box: view-box; transform-origin: 1363px 560px; animation: sway 14s ease-in-out infinite alternate; }
-  .halo { animation: halo 5s ease-in-out infinite alternate; }
+  /* Світло розгоряється, коли курсор наближається до дверей: --g (0…1) задає скрипт.
+     Здалеку — приглушене, біля дверей — на повну. Без миготіння при завантаженні. */
+  .hero { --g: 0; transition: --g .35s ease-out; }
+  .light { mix-blend-mode: multiply; opacity: calc(.3 + var(--g) * .7); }
+  .ray { opacity: var(--o); }
+  .rays { transform-box: view-box; transform-origin: 1363px 560px; transform: rotate(calc(var(--g) * 1.5deg)); }
+  .halo { opacity: calc(.35 + var(--g) * .65); transform-box: fill-box; transform-origin: center; transform: scale(calc(.85 + var(--g) * .3)); }
   .floor-light { opacity: .6; }
-
-  /* Світло «вмикається» при завантаженні */
-  .light, .slit { animation: switch-on 1.4s var(--ease-out) .4s both; }
-  .light .ray { animation: ray 7s ease-in-out var(--d) infinite alternate; }
-
-  @keyframes switch-on { 0% { opacity: 0; } 30% { opacity: .9; } 40% { opacity: .3; } 100% { opacity: 1; } }
-  @keyframes ray { from { opacity: calc(var(--o) * .55); } to { opacity: var(--o); } }
-  @keyframes sway { from { transform: rotate(-1.2deg); } to { transform: rotate(1.4deg); } }
-  @keyframes halo { from { opacity: .55; } to { opacity: .95; } }
+  /* На сенсорних екранах курсора немає — світло горить рівно */
+  @media (hover: none), (pointer: coarse) { .hero { --g: .75; } }
 
   .hero-inner { position: relative; padding-block: clamp(56px, 9vw, 120px); }
   .hero-title { font-size: clamp(2.5rem, 8vw, 7.25rem); max-width: 11ch; }
@@ -113,6 +130,6 @@ const rays = [
     .hero-inner { padding-bottom: 88vw; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .ray, .rays, .halo, .light, .slit, .line { animation: none !important; }
+    .line { animation: none !important; }
   }
 </style>

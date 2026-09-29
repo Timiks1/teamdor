@@ -239,21 +239,21 @@ const viewBox = g.viewBox(18);
   .more-note { font-weight: 600; color: var(--ink) !important; }
 
   /* ——— Живий режим (є JS і рух не вимкнено) ——— */
-  :global(:root.motion) .track { height: calc(var(--pin-h) * 4.6); }
-  :global(:root.motion) .pin { position: sticky; top: var(--header-h); height: var(--pin-h); min-height: 0; }
-  :global(:root.motion) .step-list { position: relative; display: block; }
-  :global(:root.motion) .step {
+  :global(:root.js) .track { height: calc(var(--pin-h) * 4.6); }
+  :global(:root.js) .pin { position: sticky; top: var(--header-h); height: var(--pin-h); min-height: 0; }
+  :global(:root.js) .step-list { position: relative; display: block; }
+  :global(:root.js) .step {
     position: absolute; left: 0; right: 0; top: 50%;
     opacity: 0; transform: translateY(calc(-50% + 28px)); pointer-events: none;
     transition: opacity .45s ease, transform .6s var(--ease-out);
   }
-  :global(:root.motion) .step.is-past { transform: translateY(calc(-50% - 28px)); }
-  :global(:root.motion) .step.is-active { opacity: 1; transform: translateY(-50%); pointer-events: auto; transition-delay: .08s; }
+  :global(:root.js) .step.is-past { transform: translateY(calc(-50% - 28px)); }
+  :global(:root.js) .step.is-active { opacity: 1; transform: translateY(-50%); pointer-events: auto; transition-delay: .08s; }
 
   /* Цеглинки падають згори й клацають на місце — без «висячих» проміжних станів */
-  :global(:root.motion) .pz-g { opacity: 0; transform: translateY(-46px); }
-  :global(:root.motion) .pz-g.is-on { opacity: 1; transform: none; }
-  :global(:root.motion) .is-snapped .scene { animation: snap .45s ease .3s; }
+  :global(:root.js) .pz-g { opacity: 0; transform: translateY(-46px); }
+  :global(:root.js) .pz-g.is-on { opacity: 1; transform: none; }
+  :global(:root.js) .is-snapped .scene { animation: snap .45s ease .3s; }
   @keyframes snap { 0%, 100% { transform: none; } 40% { transform: scale(1.012); } }
 
   /* Полотно дверей: кадри відчинення, видно лише поточний */
@@ -267,45 +267,47 @@ const viewBox = g.viewBox(18);
   .scene :global(.pz-spill) { opacity: .8; }
 
   /* Статичний режим: двері одразу прочинені й світяться */
-  :global(:root:not(.motion)) .pz-g.pz-glow { opacity: 1 !important; }
-  :global(:root:not(.motion)) .scene :global(.leaf-f.is-cur) { display: none; }
-  :global(:root:not(.motion)) .scene :global(.leaf-f.leaf-last) { display: inline; }
-  :global(:root:not(.motion)) .scene :global(.tint.c-mist) { --t: #E2E7EC; --l: #CAD3DD; --r: #B1BDCB; }
-  :global(:root:not(.motion)) .scene :global(.tint.c-sand) { --t: #EDE8DF; --l: #DDD4C5; --r: #C8BDAB; }
-  :global(:root:not(.motion)) .scene :global(.tint.c-sage) { --t: #DEE5DD; --l: #C5D0C3; --r: #ABBAA8; }
-  :global(:root:not(.motion)) .scene :global(.tint.c-clay) { --t: #EBDFD5; --l: #DBC8B8; --r: #C7AF9B; }
-  :global(:root:not(.motion)) .scene :global(.tint.c-night) { --t: #25324A; --l: #0C1526; --r: #060C18; }
+  :global(:root:not(.js)) .pz-g.pz-glow { opacity: 1 !important; }
+  :global(:root:not(.js)) .scene :global(.leaf-f.is-cur) { display: none; }
+  :global(:root:not(.js)) .scene :global(.leaf-f.leaf-last) { display: inline; }
+  :global(:root:not(.js)) .scene :global(.tint.c-mist) { --t: #E2E7EC; --l: #CAD3DD; --r: #B1BDCB; }
+  :global(:root:not(.js)) .scene :global(.tint.c-sand) { --t: #EDE8DF; --l: #DDD4C5; --r: #C8BDAB; }
+  :global(:root:not(.js)) .scene :global(.tint.c-sage) { --t: #DEE5DD; --l: #C5D0C3; --r: #ABBAA8; }
+  :global(:root:not(.js)) .scene :global(.tint.c-clay) { --t: #EBDFD5; --l: #DBC8B8; --r: #C7AF9B; }
+  :global(:root:not(.js)) .scene :global(.tint.c-night) { --t: #25324A; --l: #0C1526; --r: #060C18; }
 
   /* Статичний режим (без JS або «зменшити рух»): усі етапи списком, ілюстрація зібрана */
-  :global(:root:not(.motion)) .progress { display: none; }
-  :global(:root:not(.motion)) .step-list { gap: 40px; }
-  :global(:root:not(.motion)) .step-title { font-size: clamp(1.75rem, 3vw, 2.5rem); }
-  :global(:root:not(.motion)) .step-text { font-size: 19px; margin-top: 10px; }
-  :global(:root:not(.motion)) .panel-art { position: sticky; top: var(--header-h); height: calc(100svh - var(--header-h)); align-self: start; }
+  :global(:root:not(.js)) .progress { display: none; }
+  :global(:root:not(.js)) .step-list { gap: 40px; }
+  :global(:root:not(.js)) .step-title { font-size: clamp(1.75rem, 3vw, 2.5rem); }
+  :global(:root:not(.js)) .step-text { font-size: 19px; margin-top: 10px; }
+  :global(:root:not(.js)) .panel-art { position: sticky; top: var(--header-h); height: calc(100svh - var(--header-h)); align-self: start; }
 
   @media (max-width: 900px) {
     .pin { grid-template-columns: 1fr; }
     .more-list { grid-template-columns: 1fr; }
-    :global(:root.motion) .pin { grid-template-rows: minmax(0, 52%) minmax(0, 48%); }
-    :global(:root.motion) .panel-text { padding: 20px 20px 18px; gap: 12px; }
-    :global(:root.motion) .step-title { font-size: clamp(2rem, 9vw, 2.75rem); }
-    :global(:root.motion) .step-text { font-size: 18px; margin-top: 12px; }
-    :global(:root.motion) .step-note { font-size: 15px; margin-top: 10px; padding-top: 10px; }
-    :global(:root.motion) .step-cta { margin-top: 16px; }
-    :global(:root.motion) .step-num { margin-bottom: 6px; font-size: 17px; }
+    :global(:root.js) .pin { grid-template-rows: minmax(0, 52%) minmax(0, 48%); }
+    :global(:root.js) .panel-text { padding: 20px 20px 18px; gap: 12px; }
+    :global(:root.js) .step-title { font-size: clamp(2rem, 9vw, 2.75rem); }
+    :global(:root.js) .step-text { font-size: 18px; margin-top: 12px; }
+    :global(:root.js) .step-note { font-size: 15px; margin-top: 10px; padding-top: 10px; }
+    :global(:root.js) .step-cta { margin-top: 16px; }
+    :global(:root.js) .step-num { margin-bottom: 6px; font-size: 17px; }
     .dot { width: 8px; height: 8px; }
     .dot.is-active { width: 28px; }
     .dots { gap: 6px; }
     .panel-art { padding: 12px; }
     .art-card { padding: 8px; }
-    :global(:root:not(.motion)) .panel-art { position: static; height: auto; order: -1; }
+    :global(:root:not(.js)) .panel-art { position: static; height: auto; order: -1; }
   }
 </style>
 
 <script>
   const sec = document.querySelector<HTMLElement>('[data-stages]');
   const root = document.documentElement;
-  if (sec && root.classList.contains('motion')) {
+  if (sec && root.classList.contains('js')) {
+    // Збирається по кроках скролу завжди; при «зменшити рух» — без падіння й переходів, блоки просто з'являються
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const total = Number(sec.dataset.steps) || 8;
     const track = sec.querySelector<HTMLElement>('[data-track]')!;
     const pin = sec.querySelector<HTMLElement>('.pin')!;
@@ -322,6 +324,7 @@ const viewBox = g.viewBox(18);
     let frameTimers: number[] = [];
     const openDoor = () => {
       sec.classList.add('is-lit');
+      if (reduced) { showFrame(frames.length - 1); return; }
       frameTimers = frames.map((_, k) => window.setTimeout(() => showFrame(k), k * 70));
     };
 
@@ -340,7 +343,7 @@ const viewBox = g.viewBox(18);
       sec.classList.toggle('is-snapped', n >= 7);
       clearTimeout(litTimer);
       frameTimers.forEach(clearTimeout);
-      if (n >= total) litTimer = window.setTimeout(openDoor, 650);
+      if (n >= total) litTimer = window.setTimeout(openDoor, reduced ? 0 : 650);
       else { sec.classList.remove('is-lit'); showFrame(0); }
       count.textContent = String(n).padStart(2, '0');
     };
