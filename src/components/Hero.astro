@@ -54,29 +54,35 @@ const archD = `M${CX - 28 * K},${BASE} L${CX - 28 * K},${BASE - 46 * K} A${28 * 
 </section>
 
 <script>
-  // Наведення на смугу світла → ореол, як від лампи. Смуга лежить під текстом, тому влучання рахуємо за координатами.
+  // Як у маленького логотипа: що ближче курсор до смуги світла, то яскравіший ореол (--g від 0 до 1).
+  // Смуга велика, тому відстань рахуємо до її країв: над самою смугою — повне світло.
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   const bar = hero?.querySelector<SVGRectElement>('.slit');
   if (hero && bar) {
-    const PAD = 18; // px — невеликий запас навколо смуги, щоб легше влучити
-    const hit = (x: number, y: number) => {
-      const r = bar.getBoundingClientRect();
-      return x >= r.left - PAD && x <= r.right + PAD && y >= r.top - PAD && y <= r.bottom + PAD;
-    };
-    let raf = 0, px = -1e4, py = -1e4;
-    const check = () => { raf = 0; hero.classList.toggle('is-glow', hit(px, py)); };
-    const queue = () => { if (!raf) raf = requestAnimationFrame(check); };
-    window.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { px = e.clientX; py = e.clientY; queue(); } }, { passive: true });
-    window.addEventListener('scroll', queue, { passive: true });
-    document.addEventListener('pointerleave', () => { px = py = -1e4; queue(); });
-    // Сенсорні екрани: ореол загоряється від дотику до смуги й за кілька секунд гасне
-    let t: number | undefined;
-    window.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'mouse' || !hit(e.clientX, e.clientY)) return;
-      hero.classList.add('is-glow');
-      clearTimeout(t);
-      t = window.setTimeout(() => hero.classList.remove('is-glow'), 2500);
-    }, { passive: true });
+    const RADIUS = 420; // px — з якої відстані починає світитися
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      let px = -1e4, py = -1e4, raf = 0;
+      const paint = () => {
+        raf = 0;
+        const r = bar.getBoundingClientRect();
+        const dx = Math.max(r.left - px, 0, px - r.right);
+        const dy = Math.max(r.top - py, 0, py - r.bottom);
+        const g = Math.max(0, 1 - Math.hypot(dx, dy) / RADIUS);
+        hero.style.setProperty('--g', (g * g * (3 - 2 * g)).toFixed(3));
+      };
+      const queue = () => { if (!raf) raf = requestAnimationFrame(paint); };
+      window.addEventListener('pointermove', (e) => { px = e.clientX; py = e.clientY; queue(); }, { passive: true });
+      window.addEventListener('scroll', queue, { passive: true });
+      document.addEventListener('pointerleave', () => { px = py = -1e4; queue(); });
+    } else {
+      // Сенсорні екрани: курсора немає — світло спалахує при появі й при дотику до смуги
+      const flash = () => hero.animate([{ '--g': 0 }, { '--g': 1, offset: 0.35 }, { '--g': 0 }] as Keyframe[], { duration: 1800, easing: 'ease-out' });
+      setTimeout(flash, 1000);
+      window.addEventListener('pointerdown', (e) => {
+        const r = bar.getBoundingClientRect();
+        if (e.clientX >= r.left - 24 && e.clientX <= r.right + 24 && e.clientY >= r.top - 24 && e.clientY <= r.bottom + 24) flash();
+      }, { passive: true });
+    }
   }
 </script>
 
@@ -87,9 +93,9 @@ const archD = `M${CX - 28 * K},${BASE} L${CX - 28 * K},${BASE - 46 * K} A${28 * 
   .arch { fill: none; stroke: var(--ink); stroke-width: 30; stroke-linecap: round; }
   .slit { fill: var(--beam); }
 
-  /* Ореол «як від лампи»: розгоряється при наведенні на смугу, плавно гасне після */
-  .glow { opacity: 0; transform-box: fill-box; transform-origin: center; transform: scale(.92); transition: opacity .8s ease, transform .8s ease; }
-  .hero.is-glow .glow { opacity: 1; transform: none; transition: opacity .45s ease-out, transform .45s ease-out; }
+  /* Ореол «як від лампи»: яскравість --g (0…1) залежить від відстані курсора до смуги */
+  .hero { --g: 0; }
+  .glow { opacity: var(--g); transform-box: fill-box; transform-origin: center; transform: scale(calc(.9 + var(--g) * .1)); }
 
   .hero-inner { position: relative; padding-block: clamp(56px, 9vw, 120px); }
   .hero-title { font-size: clamp(2.5rem, 8vw, 7.25rem); max-width: 11ch; }
