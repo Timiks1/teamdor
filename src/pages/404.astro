@@ -1,18 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
+import Mark from '../components/Mark.astro';
 import { getContent } from '../lib/content';
 const uk = getContent('uk').ui.notFound;
 const en = getContent('en').ui.notFound;
 ---
 <Base lang="uk" title="404 — teamdor" noindex alternates={false}>
   <section class="wrap nf">
-    <svg class="door" viewBox="0 0 120 160" aria-hidden="true">
-      <rect x="6" y="6" width="96" height="148" rx="6" fill="#F7F5F1" stroke="#191A1C" stroke-width="3"/>
-      <rect x="14" y="14" width="80" height="140" rx="4" fill="#0C1526"/>
-      <rect x="74" y="80" width="8" height="16" rx="4" fill="#F7F5F1"/>
-      <rect class="crack" x="104" y="14" width="4" height="140" rx="2" fill="#C9C3B8"/>
-      <line x1="0" y1="156" x2="120" y2="156" stroke="#DBD5CB" stroke-width="3"/>
-    </svg>
+    <Mark class="door" />
     <p class="code">404</p>
     <h1>{uk.title}</h1>
     <p class="text">{uk.text}</p>
@@ -23,9 +18,10 @@ const en = getContent('en').ui.notFound;
 
 <style>
   .nf { min-height: 72svh; display: grid; place-content: center; justify-items: center; text-align: center; gap: 18px; padding-block: 72px; }
-  .door { width: 120px; height: 160px; }
-  .crack { animation: flicker 4s ease-in-out 1s infinite; }
-  @keyframes flicker { 0%, 88%, 100% { fill: #C9C3B8; } 90%, 94% { fill: #0B5FFF; } 92% { fill: #C9C3B8; } }
+  .nf :global(.door) { width: 96px; height: 124px; }
+  /* Світло в цих дверях не горить — лише зрідка блимає */
+  .nf :global(.mark-light) { fill: var(--line); animation: flicker 5s ease-in-out 1s infinite; }
+  @keyframes flicker { 0%, 88%, 100% { fill: #DBD5CB; } 90%, 94% { fill: #0B5FFF; } 92% { fill: #DBD5CB; } }
   .code { font-family: var(--font-display); font-weight: 600; color: var(--ink-2); font-size: 20px; letter-spacing: .1em; }
   h1 { font-size: clamp(2.75rem, 8vw, 6rem); max-width: 12ch; }
   .text { font-size: 20px; color: var(--ink-2); max-width: 40ch; margin-bottom: 12px; }

@@ -1,0 +1,29 @@
+---
+// Знак teamdor за брендбуком v1.1: квадрат 96×96, арка — стійки ±28, плече на −9, радіус 28, обводка 5,5;
+// світло — смуга 13×52, лівий край x = 7, радіус 6,5, низ урівень з основою арки.
+// compact — для дрібних розмірів (<22 px): обводка 6,5, смуга ширша на 2.
+// mono — одноколірна версія: смуга чорнильна (або колір currentColor).
+interface Props {
+  class?: string;
+  compact?: boolean;
+  mono?: boolean;
+  spill?: boolean; // відсвіт на підлозі (для свічення логотипа)
+  title?: string;
+}
+const { class: cls, compact = false, mono = false, spill = false, title } = Astro.props;
+const sw = compact ? 6.5 : 5.5;
+const bw = compact ? 15 : 13;
+---
+<svg class:list={['mark', cls]} viewBox="-34 -42 68 88" role={title ? 'img' : undefined} aria-label={title} aria-hidden={title ? undefined : 'true'} focusable="false">
+  {spill && <ellipse class="mark-spill" cx="13" cy="40" rx="30" ry="5" />}
+  <path class="mark-arch" d="M-28,37 L-28,-9 A28,28 0 0 1 28,-9 L28,37" fill="none" stroke-width={sw} stroke-linecap="round" />
+  <rect class:list={['mark-light', { 'mark-light--mono': mono }]} x="7" y="-15" width={bw} height="52" rx={bw / 2} />
+</svg>
+
+<style>
+  .mark { overflow: visible; }
+  .mark-arch { stroke: currentColor; }
+  .mark-light { fill: var(--beam); }
+  .mark-light--mono { fill: currentColor; }
+  .mark-spill { fill: var(--glow); opacity: 0; filter: blur(4px); }
+</style>

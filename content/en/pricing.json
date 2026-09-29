@@ -5,7 +5,7 @@
   "includesLabel": "Included",
   "excludesLabel": "Not included",
   "termLabel": "Timeline",
-  "button": "Open the door",
+  "button": "Build my site",
   "packages": [
     {
       "name": "Landing page",

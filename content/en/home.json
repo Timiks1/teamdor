@@ -2,7 +2,7 @@
   "hero": {
     "title": "Website. Catalog. Automation.",
     "lead": "See your website first — for free. A clickable prototype of your homepage in 48–72 hours.",
-    "primary": "Open the door",
+    "primary": "Build my site",
     "secondary": "See prices",
     "note": "No prepayment. No strings attached."
   },
@@ -31,7 +31,7 @@
       { "title": "Build & launch", "text": "We write the code, test buttons, forms and speed.", "details": "We write your site in code — no website builders. We connect the domain, SSL, analytics and forms, check speed and every button. Then we launch." },
       { "title": "Support", "text": "A year of warranty and help after launch.", "details": "For a year after launch we fix bugs for free and help with questions. We show you how to change texts and prices in the admin panel yourself." }
     ],
-    "finalCta": "Open the door"
+    "finalCta": "Build my site"
   },
   "directions": {
     "eyebrow": "Where to start",

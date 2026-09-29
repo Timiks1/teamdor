@@ -13,7 +13,7 @@
     "menu": "Menu",
     "close": "Close menu"
   },
-  "cta": "Open the door",
+  "cta": "Build my site",
   "skip": "Skip to content",
   "form": {
     "name": "Name",
@@ -24,7 +24,7 @@
     "comment": "Comment",
     "commentHint": "Briefly: what your business does and what you need",
     "optional": "optional",
-    "submit": "Open the door",
+    "submit": "Build my site",
     "sending": "Sending…",
     "consent": "By clicking the button you agree to our",
     "consentLink": "privacy policy",

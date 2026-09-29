@@ -1,6 +1,7 @@
 ---
 // Сторінка «Дякуємо» — для відправки форми без JavaScript
 import Base from '../layouts/Base.astro';
+import Mark from './Mark.astro';
 import { contacts, getContent, localePath, type Lang } from '../lib/content';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -8,11 +9,7 @@ const { form } = getContent(lang).ui;
 ---
 <Base lang={lang} title={`${form.thanksTitle} — teamdor`} noindex>
   <section class="wrap thanks">
-    <svg viewBox="0 0 30 40" width="60" height="80" aria-hidden="true">
-      <rect x="2" y="2" width="20" height="36" rx="2.5" fill="#0C1526"/>
-      <rect x="16" y="19" width="2.5" height="4" rx="1.2" fill="#F7F5F1"/>
-      <rect x="24.5" y="2" width="4" height="36" rx="1.4" fill="#0B5FFF" style="filter:drop-shadow(0 0 6px #7FB0FF) drop-shadow(0 0 14px rgba(127,176,255,.9))"/>
-    </svg>
+    <Mark class="t-mark" />
     <h1>{form.thanksTitle}</h1>
     <p>{form.thanksText}</p>
     <div class="btns">
@@ -24,6 +21,7 @@ const { form } = getContent(lang).ui;
 
 <style>
   .thanks { min-height: 70svh; display: grid; place-content: center; justify-items: center; text-align: center; gap: 20px; padding-block: 80px; }
+  .thanks :global(.t-mark) { width: 64px; height: 84px; }
   h1 { font-size: clamp(3rem, 8vw, 6rem); }
   p { font-size: 22px; color: var(--ink-2); }
   .btns { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 12px; }

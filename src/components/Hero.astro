@@ -6,14 +6,18 @@ const { lang } = Astro.props;
 const { hero } = getContent(lang).home;
 const lines = hero.title.split(/(?<=[.!?])\s+/);
 
-// Промені зі щілини прочинених дверей
-const sx = 1364, sy0 = 250, sy1 = 700;
+// Знак-арка на «підлозі»; промені виходять зі смуги світла (геометрія знака × K)
+const K = 5.4, CX = 1290, BASE = 703;
+const bar = { x: CX + 7 * K, w: 13 * K, h: 52 * K };
+const sx = bar.x + bar.w / 2;
+const sy0 = BASE - bar.h, sy1 = BASE;
+const archD = `M${CX - 28 * K},${BASE} L${CX - 28 * K},${BASE - 46 * K} A${28 * K},${28 * K} 0 0 1 ${CX + 28 * K},${BASE - 46 * K} L${CX + 28 * K},${BASE}`;
 const rays = [
-  { a: 270, b: 330, y0: -260, y1: 40, o: 0.55, d: 0 },
-  { a: 350, b: 420, y0: 130, y1: 330, o: 0.4, d: 1.6 },
-  { a: 450, b: 520, y0: 430, y1: 620, o: 0.6, d: 0.8 },
-  { a: 540, b: 610, y0: 700, y1: 880, o: 0.45, d: 2.4 },
-  { a: 620, b: 690, y0: 960, y1: 1240, o: 0.5, d: 1.2 },
+  { a: sy0 + 10, b: sy0 + 60, y0: -260, y1: 40, o: 0.55, d: 0 },
+  { a: sy0 + 70, b: sy0 + 120, y0: 130, y1: 330, o: 0.4, d: 1.6 },
+  { a: sy0 + 130, b: sy0 + 180, y0: 430, y1: 620, o: 0.6, d: 0.8 },
+  { a: sy0 + 190, b: sy0 + 235, y0: 700, y1: 880, o: 0.45, d: 2.4 },
+  { a: sy0 + 240, b: sy1 - 6, y0: 960, y1: 1240, o: 0.5, d: 1.2 },
 ];
 ---
 <section class="hero" id="top">
@@ -33,28 +37,21 @@ const rays = [
           <stop offset="0" stop-color="#7FB0FF" stop-opacity=".9" />
           <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
         </radialGradient>
-        <linearGradient id="slit" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#0B5FFF" />
-          <stop offset=".5" stop-color="#5C95FF" />
-          <stop offset="1" stop-color="#0B5FFF" />
-        </linearGradient>
       </defs>
       <rect class="floor" x="0" y="703" width="1600" height="297" />
       <line x1="0" y1="703" x2="1600" y2="703" class="floor-line" />
       <g class="light">
-        <polygon class="floor-light" points={`${sx - 12},703 ${sx + 10},703 ${sx - 40},1000 ${sx - 820},1000`} fill="url(#floor)" />
+        <polygon class="floor-light" points={`${bar.x},703 ${bar.x + bar.w},703 ${sx - 20},1000 ${sx - 820},1000`} fill="url(#floor)" />
         <g class="rays">
           {rays.map((r) => (
             <polygon class="ray" style={`--o:${r.o};--d:${r.d}s`} points={`${sx},${r.a} ${sx},${r.b} -120,${r.y1} -120,${r.y0}`} fill="url(#ray)" />
           ))}
         </g>
-        <ellipse class="halo" cx={sx} cy={(sy0 + sy1) / 2} rx="120" ry="300" fill="url(#halo)" />
+        <ellipse class="halo" cx={sx} cy={(sy0 + sy1) / 2 + 20} rx="150" ry="230" fill="url(#halo)" />
       </g>
       <g class="door">
-        <rect x={sx - 154} y={sy0 - 12} width="178" height={sy1 - sy0 + 15} rx="4" class="frame" />
-        <rect x={sx - 142} y={sy0} width={138} height={sy1 - sy0} rx="3" class="leaf" />
-        <rect x={sx - 36} y="470" width="10" height="26" rx="5" class="knob" />
-        <rect class="slit" x={sx - 2} y={sy0} width="14" height={sy1 - sy0} rx="2" fill="url(#slit)" />
+        <path d={archD} class="arch" />
+        <rect class="slit" x={bar.x} y={sy0} width={bar.w} height={bar.h} rx={bar.w / 2} />
       </g>
     </svg>
   </div>
@@ -78,13 +75,12 @@ const rays = [
   .hero-bg svg { width: 100%; height: 100%; }
   .floor { fill: var(--sand); opacity: .55; }
   .floor-line { stroke: var(--line); stroke-width: 1.5; }
-  .frame { fill: var(--paper); stroke: var(--ink); stroke-width: 3; }
-  .leaf { fill: var(--night); }
-  .knob { fill: var(--paper); }
+  .arch { fill: none; stroke: var(--ink); stroke-width: 30; stroke-linecap: round; }
+  .slit { fill: var(--beam); }
 
   .light { mix-blend-mode: multiply; }
-  .ray { opacity: var(--o); transform-box: view-box; transform-origin: 1364px 475px; animation: ray 7s ease-in-out var(--d) infinite alternate; }
-  .rays { transform-box: view-box; transform-origin: 1364px 475px; animation: sway 14s ease-in-out infinite alternate; }
+  .ray { opacity: var(--o); transform-box: view-box; transform-origin: 1363px 560px; animation: ray 7s ease-in-out var(--d) infinite alternate; }
+  .rays { transform-box: view-box; transform-origin: 1363px 560px; animation: sway 14s ease-in-out infinite alternate; }
   .halo { animation: halo 5s ease-in-out infinite alternate; }
   .floor-light { opacity: .6; }
 
