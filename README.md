@@ -19,7 +19,7 @@ npm run build      # збірка в dist/
 | Весь контент (тексти, ціни, кейси, FAQ, контакти) | `content/uk/*.json`, `content/en/*.json`, `content/contacts.json` |
 | Юридичні сторінки | `content/{uk,en}/legal/*.md` → `/privacy`, `/offer`, `/cookies` (+ `/en/...`) |
 | Блоки головної | `src/components/*.astro` (порядок — `HomePage.astro`) |
-| «Етапи» (двері з лего, карусель) | `src/components/Stages.astro`, сцена — `src/lib/lego/door.js` |
+| «Етапи» (двері з лего збираються прокруткою, як відео) | `src/components/Stages.astro`, сцена — `src/lib/lego/door.js` |
 | «Що робимо» і «Автоматизація» | `src/components/Services.astro`, `Automation.astro`, збірки — `src/lib/lego/builds.js` |
 | Рушій лего-деталей (three.js) | `src/lib/lego/kit.js`, спільний рендерер карток — `src/lib/lego/shelf.js` |
 | Форма → email / CRM | `src/pages/api/lead.ts`, `src/lib/lead.ts` |

@@ -1,7 +1,7 @@
 // @ts-nocheck
 // Двері для блоку «Етапи» (дод. ТЗ v0.2, п. 2): одна сцена, деталі проявляються над місцем і опускаються.
 // 1 база · 2 поріг і доріжка · 3 колони · 4 арка · 5 стулка · 6 деталі · 7 світло · 8 двері відчиняються ширше
-import { THREE, Kit, P, BR, PL, easeInOut } from './kit.js';
+import { THREE, Kit, P, BR, PL } from './kit.js';
 
 export const HOVER = 40; // мм — висота, з якої опускається деталь
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -98,97 +98,60 @@ export function poseDoor(d, n) {
 }
 
 /**
- * Живі двері в canvas усередині card. Рендер лише коли щось рухається.
- * Повертає { goTo(n, {instant}), stage }; null — якщо WebGL недоступний.
+ * Двері, що збираються прокруткою, як відео: setProgress(0…1) — кадр.
+ * Деталі падають згори врізнобій, як дощ, кілька одночасно, і м'яко сідають.
+ * Кожна сідає лише після тих, що під нею: стійки ростуть знизу, арка лягає на готові стійки.
+ * Наприкінці стає стулка, загоряється світло й двері відчиняються ширше.
+ * Рендер лише при зміні прогресу. Повертає null, якщо WebGL недоступний.
  */
-export function mountDoor(canvas, card) {
+export function mountDoorScrub(canvas, card) {
   let renderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch { return null; }
   renderer.setClearColor(0xffffff, 0); renderer.outputColorSpace = THREE.SRGBColorSpace;
   const d = buildDoor();
-  const { kit, parts, clusters, leaf, LEAF_AJAR, LEAF_OPEN, fitBox } = d;
+  const { kit, parts, clusters, leaf, LEAF_AJAR, LEAF_OPEN } = d;
+  for (const c of clusters) { c.guide.visible = false; c.guide.parent?.remove(c.guide); } // без напрямних
 
-  const tracks = new Map(); // об'єкт → { t0, keys:[{t, op, dy}|{t, r}] }
-  const track = (obj, keys, t0) => tracks.set(obj, { t0, keys });
-  const sample = (keys, t) => {
-    if (t <= keys[0].t) return keys[0];
-    for (let i = 1; i < keys.length; i++) {
-      const a = keys[i - 1], b = keys[i];
-      if (t <= b.t) {
-        const k = (t - a.t) / (b.t - a.t || 1), e = b.step ? (k < 1 ? 0 : 1) : easeInOut(k);
-        const o = {}; for (const key in b) if (typeof b[key] === 'number' && key !== 't') o[key] = a[key] + (b[key] - a[key]) * e; return o;
-      }
-    }
-    return keys[keys.length - 1];
-  };
+  // Детермінований «випадок», щоб порядок був той самий при кожному завантаженні
+  let seed = 7;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 
-  let stage = 0;
-  function goTo(target, { instant = false } = {}) {
-    const now = performance.now(); const from = stage; stage = target;
-    const loopBack = from === 8 && target === 1 && !instant;
-    parts.forEach((p) => {
-      const cur = { op: p.op, dy: p.dy };
-      if (p.stage < target) { // уже зібрано: доводимо на місце
-        if (loopBack) return;
-        track(p, [{ t: 0, ...cur }, { t: instant ? 0 : 500, op: 1, dy: 0 }], now);
-      } else if (p.stage > target || loopBack) { // ще не зібрано: піднімається й тане
-        if (cur.op < 0.01) { p.set(0, 0); tracks.delete(p); return; }
-        const dl = loopBack ? (p.stage === 1 ? 0 : 20 * (8 - p.stage)) : 0;
-        track(p, [{ t: 0, ...cur }, { t: dl, ...cur }, { t: dl + (instant ? 0 : 520), op: 0, dy: reduce ? 0 : 18 }], now);
-      }
-    });
-    if (loopBack) { // після 08 → 01: двері розбираються згори вниз, база з'являється знову
-      parts.filter((p) => p.stage === 1).forEach((p) => track(p, [{ t: 0, op: p.op, dy: p.dy }, { t: 620, op: 0, dy: 0 }, { t: 980, op: 1, dy: 0 }], now));
-    } else {
-      parts.filter((p) => p.stage === target).forEach((p) => {
-        if (p.isLight) { // світло: коротко моргає, як лампа, і горить
-          const k = reduce ? [{ t: 0, op: 0, dy: 0 }, { t: 400, op: 1, dy: 0 }]
-            : [{ t: 0, op: 0, dy: 0 }, { t: 120, op: 0, dy: 0 }, { t: 160, op: 0.7, dy: 0, step: 1 }, { t: 230, op: 0, dy: 0, step: 1 }, { t: 300, op: 0.9, dy: 0, step: 1 }, { t: 370, op: 0.15, dy: 0, step: 1 }, { t: 520, op: 1, dy: 0, step: 1 }];
-          track(p, instant ? [{ t: 0, op: 1, dy: 0 }] : k, now); return;
-        }
-        if (!p.cluster) { track(p, [{ t: 0, op: 0, dy: 0 }, { t: instant ? 0 : 480, op: 1, dy: 0 }], now); return; }
-        const i = clusters.filter((c) => c.stage === target).indexOf(p.cluster), dl = i * 140;
-        const keys = instant ? [{ t: 0, op: 1, dy: 0 }] : reduce ? [{ t: 0, op: 0, dy: 0 }, { t: dl + 400, op: 1, dy: 0 }]
-          : [{ t: 0, op: 0, dy: HOVER }, { t: dl, op: 0, dy: HOVER }, { t: dl + 260, op: 1, dy: HOVER }, { t: dl + 520, op: 1, dy: HOVER }, { t: dl + 1500, op: 1, dy: 0 }];
-        track(p, keys, now);
-      });
+  const FALL = reduce ? 0 : 260;   // мм — звідки падає деталь (з-за верхнього краю картки)
+  const DUR = 0.16;                // тривалість падіння в частках прокрутки: кілька деталей летять одночасно
+  const base = parts.filter((p) => p.stage === 1);
+  const light = parts.find((p) => p.isLight);
+  const rest = parts.filter((p) => p.stage !== 1 && p !== leaf && !p.isLight);
+  // врізнобій, але знизу вгору: джиттер менший за висоту цеглинки, тож верхня не обжене нижню
+  const keyed = rest.map((p) => ({ p, k: p.restBox().min.y + rand() * BR * 0.9 })).sort((a, b) => a.k - b.k);
+  const plan = new Map();
+  base.forEach((p) => plan.set(p, { land: 0.08, fall: FALL * 0.25 }));
+  keyed.forEach(({ p }, i) => plan.set(p, { land: 0.16 + (0.68 * i) / Math.max(1, keyed.length - 1), fall: FALL }));
+  plan.set(leaf, { land: 0.9, fall: FALL });
+
+  const clamp01 = (x) => Math.min(1, Math.max(0, x));
+  const soft = (k) => 1 - Math.pow(1 - k, 3); // швидко згори, м'яка посадка
+
+  function setProgress(p) {
+    for (const [part, pl] of plan) {
+      const k = clamp01((p - (pl.land - DUR)) / DUR);
+      part.set(clamp01(k / 0.2), pl.fall * (1 - soft(k)));
     }
-    // етап 8: двері відчиняються ширше; інші етапи — знову прочинені
-    const want = target === 8 ? LEAF_OPEN : LEAF_AJAR;
-    tracks.set(leaf.group.rotation, { t0: now, keys: [{ t: 0, r: leaf.group.rotation.y }, { t: instant || reduce ? 0 : target === 8 ? 1300 : 600, r: want }] });
-    kick();
+    if (light) light.set(clamp01((p - 0.92) / 0.03), 0);
+    leaf.group.rotation.y = LEAF_AJAR + (LEAF_OPEN - LEAF_AJAR) * soft(clamp01((p - 0.95) / 0.05));
+    renderer.render(kit.scene, kit.camera);
   }
 
-  const render = () => renderer.render(kit.scene, kit.camera);
+  const fitBox = kit.bounds();
+  let last = 0;
   function size() {
     const r = card.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (!r.width) return;
     renderer.setPixelRatio(dpr); renderer.setSize(r.width, r.height, false);
     kit.setResolution(r.width * dpr, r.height * dpr, dpr * Math.max(1, r.width / 720));
-    kit.fit(fitBox, r.width, r.height, 1.06); render();
+    kit.fit(fitBox, r.width, r.height, 1.1);
+    setProgress(last);
   }
   new ResizeObserver(size).observe(card);
-
-  let raf = 0;
-  function frame(now) {
-    let busy = false;
-    for (const [obj, tr] of tracks) {
-      const t = now - tr.t0, lastKey = tr.keys[tr.keys.length - 1];
-      const s = t >= lastKey.t ? lastKey : sample(tr.keys, t);
-      if (obj.isEuler) obj.y = s.r; else obj.set(s.op, s.dy);
-      if (t >= lastKey.t) tracks.delete(obj); else busy = true;
-    }
-    for (const c of clusters) { // напрямні йдуть за деталлю, що зависла над місцем
-      const p = c.parts[0], show = p.op > 0.01 && p.dy > 0.5;
-      c.guide.visible = show;
-      if (show) { c.guide.scale.y = p.dy / HOVER; c.gm.opacity = Math.min(1, p.op) * Math.min(1, p.dy / (HOVER * 0.35)); }
-    }
-    render();
-    raf = busy ? requestAnimationFrame(frame) : 0;
-  }
-  function kick() { if (!raf) raf = requestAnimationFrame(frame); }
-
-  parts.forEach((p) => p.set(0, 0));
   size();
-  return { goTo, get stage() { return stage; } };
+  return { setProgress(p) { last = p; setProgress(p); } };
 }

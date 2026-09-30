@@ -57,7 +57,6 @@ collections:
               - { label: "Заголовок (для пошуковиків)", name: title, widget: string, i18n: true }
               - { label: "Примітка після етапу 03", name: prepayNote, widget: string, i18n: true }
               - { label: "Кнопка «детально»", name: detailsLabel, widget: string, i18n: true }
-              - { label: "Підпис «карусель» (для екранних читалок)", name: carouselLabel, widget: string, i18n: true }
               - { label: "Підпис смужки етапів", name: stageLabel, widget: string, i18n: true }
               - { label: "Кнопка «попередній етап»", name: prevLabel, widget: string, i18n: true }
               - { label: "Кнопка «наступний етап»", name: nextLabel, widget: string, i18n: true }
