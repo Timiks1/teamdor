@@ -7,6 +7,7 @@ import ukPricing from '../../content/uk/pricing.json';
 import ukCases from '../../content/uk/cases.json';
 import ukFaq from '../../content/uk/faq.json';
 import ukUi from '../../content/uk/ui.json';
+import ukAutomation from '../../content/uk/automation.json';
 
 import enHome from '../../content/en/home.json';
 import enServices from '../../content/en/services.json';
@@ -14,13 +15,14 @@ import enPricing from '../../content/en/pricing.json';
 import enCases from '../../content/en/cases.json';
 import enFaq from '../../content/en/faq.json';
 import enUi from '../../content/en/ui.json';
+import enAutomation from '../../content/en/automation.json';
 
 export type Lang = 'uk' | 'en';
 export const LANGS: Lang[] = ['uk', 'en'];
 
 const dict = {
-  uk: { home: ukHome, services: ukServices, pricing: ukPricing, cases: ukCases, faq: ukFaq, ui: ukUi },
-  en: { home: enHome, services: enServices, pricing: enPricing, cases: enCases, faq: enFaq, ui: enUi },
+  uk: { home: ukHome, services: ukServices, pricing: ukPricing, cases: ukCases, faq: ukFaq, ui: ukUi, automation: ukAutomation },
+  en: { home: enHome, services: enServices, pricing: enPricing, cases: enCases, faq: enFaq, ui: enUi, automation: enAutomation },
 };
 
 export type Content = (typeof dict)['uk'];

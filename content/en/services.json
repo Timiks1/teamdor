@@ -4,16 +4,71 @@
   "text": "From a single page to automating your whole business.",
   "linkLabel": "Discuss",
   "items": [
-    { "slug": "landing", "icon": "landing", "title": "Landing page", "text": "One page that sells one thing. Fast and to the point." },
-    { "slug": "business", "icon": "business", "title": "Business website", "text": "A few pages about you, your services and contacts. With an admin panel." },
-    { "slug": "catalog", "icon": "catalog", "title": "Catalog website", "text": "All your products with photos, prices and filters." },
-    { "slug": "shop", "icon": "shop", "title": "Online store", "text": "Cart, card payments, delivery. Sells while you sleep." },
-    { "slug": "automation", "icon": "automation", "title": "Automation & integrations", "text": "Leads go to your CRM, reports go to spreadsheets. Less manual work." },
-    { "slug": "bots", "icon": "bots", "title": "Telegram bots", "text": "Take orders, answer clients, send reminders." },
-    { "slug": "redesign", "icon": "redesign", "title": "Redesign", "text": "Your old website in a new look. Easy to use and fast." },
-    { "slug": "support", "icon": "support", "title": "Support", "text": "Updates, edits and backups. You run your business." },
-    { "slug": "seo", "icon": "seo", "title": "SEO & ads", "text": "So people find you on Google and leads come in." },
-    { "slug": "branding", "icon": "branding", "title": "Branding & design", "text": "Logo, colours, style — so people remember you." },
-    { "slug": "custom", "icon": "custom", "title": "Custom project", "text": "Not on the list? Tell us the task — we'll estimate it." }
+    {
+      "slug": "landing",
+      "icon": "landing",
+      "title": "Landing page",
+      "text": "One page that sells one thing. Fast and to the point."
+    },
+    {
+      "slug": "catalog",
+      "icon": "catalog",
+      "title": "Catalog website",
+      "text": "All your products with photos, prices and filters."
+    },
+    {
+      "slug": "business",
+      "icon": "business",
+      "title": "Business website",
+      "text": "A few pages about you, your services and contacts. With an admin panel."
+    },
+    {
+      "slug": "shop",
+      "icon": "shop",
+      "title": "Online store",
+      "text": "Cart, card payments, delivery. Sells while you sleep."
+    },
+    {
+      "slug": "redesign",
+      "icon": "redesign",
+      "title": "Redesign",
+      "text": "Your old website in a new look. Easy to use and fast."
+    },
+    {
+      "slug": "support",
+      "icon": "support",
+      "title": "Support",
+      "text": "Updates, edits and backups. You run your business."
+    },
+    {
+      "slug": "automation",
+      "icon": "automation",
+      "title": "Automation & integrations",
+      "text": "Leads go to your CRM, reports go to spreadsheets. The system does the routine."
+    },
+    {
+      "slug": "bots",
+      "icon": "bots",
+      "title": "Telegram bots",
+      "text": "Take orders, answer clients, send reminders."
+    },
+    {
+      "slug": "seo",
+      "icon": "seo",
+      "title": "SEO & ads",
+      "text": "So people find you on Google and leads come in."
+    },
+    {
+      "slug": "branding",
+      "icon": "branding",
+      "title": "Branding & design",
+      "text": "Logo, colours, style — so people remember you."
+    },
+    {
+      "slug": "custom",
+      "icon": "custom",
+      "title": "Custom project",
+      "text": "Not on the list? Tell us the task — we'll estimate it."
+    }
   ]
 }

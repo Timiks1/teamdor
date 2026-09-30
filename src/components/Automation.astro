@@ -1,0 +1,85 @@
+---
+// «Автоматизація» (дод. ТЗ v0.2, п. 4): про підхід, без цифр і кейсів.
+// Праворуч — велика версія збірки «Автоматизація та інтеграції» (цеглинка їде доріжкою), той самий спільний рендерер.
+import { getContent, type Lang } from '../lib/content';
+interface Props { lang: Lang }
+const { automation: a } = getContent(Astro.props.lang);
+---
+<section class="section automation" id="automation" aria-labelledby="automation-title" data-lego-section>
+  <div class="wrap grid">
+    <div class="copy">
+      <div class="reveal">
+        <p class="eyebrow">{a.eyebrow}</p>
+        <h2 id="automation-title">{a.title}</h2>
+        <p class="lead">{a.text}</p>
+      </div>
+
+      <h3 class="sub reveal">{a.stepsTitle}</h3>
+      <ol class="steps">
+        {a.steps.map((s, i) => (
+          <li class="reveal" style={`transition-delay:${i * 60}ms`}>
+            <span class="n" aria-hidden="true">{i + 1}</span>
+            <p><b>{s.title}</b> {s.text}</p>
+          </li>
+        ))}
+      </ol>
+
+      <h3 class="sub reveal">{a.examplesTitle}</h3>
+      <ul class="chips reveal">
+        {a.examples.map((x) => <li>{x}</li>)}
+      </ul>
+
+      <p class="principle reveal">{a.principle}</p>
+      <a class="btn reveal" href="#contact" data-cta="automation" data-service={a.eyebrow}>
+        {a.button}
+        <svg viewBox="0 0 20 12" width="20" height="12" aria-hidden="true"><path d="M1 6h17M13 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+    <div class="art" data-lego-art>
+      <img src="/img/lego/automation-big.png" alt="" width="960" height="720" loading="lazy" decoding="async" />
+      <canvas data-lego="automation" data-lego-pad="1.08" aria-hidden="true"></canvas>
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 72px); align-items: start; }
+  .copy h2 { font-size: clamp(2.25rem, 5vw, 4rem); max-width: 16ch; }
+  .copy .lead { max-width: 44ch; }
+  .sub { font-family: var(--font-text); font-weight: 600; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin: 48px 0 16px; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .steps li { display: grid; grid-template-columns: 44px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--line); align-items: start; }
+  .n { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--ink); color: var(--paper); font-weight: 600; font-size: 16px; }
+  .steps p { font-size: 18px; color: var(--ink-2); }
+  .steps b { color: var(--ink); font-weight: 600; }
+  .chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips li { padding: 10px 16px; border-radius: 12px; background: var(--sand); border: 1px solid var(--line); font-size: 16px; line-height: 1.4; }
+  .principle { margin: 32px 0 24px; font-size: 19px; font-weight: 500; max-width: 46ch; padding-left: 16px; border-left: 3px solid var(--ink); }
+
+  .art { position: sticky; top: calc(var(--header-h) + 32px); aspect-ratio: 4 / 3; background: var(--white); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; }
+  .art img, .art canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .art img { object-fit: contain; }
+  .art canvas { opacity: 0; transition: opacity .3s ease; }
+  .art.is-ready canvas { opacity: 1; }
+  .art.is-ready img { opacity: 0; transition: opacity .3s ease; }
+
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
+    .art { position: relative; top: auto; }
+    .btn { width: 100%; white-space: normal; text-align: center; }
+  }
+</style>
+
+<script>
+  const section = document.querySelector<HTMLElement>('#automation[data-lego-section]');
+  if (section && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(async (entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      const { mountShelf } = await import('../lib/lego/shelf.js');
+      mountShelf([...section.querySelectorAll<HTMLCanvasElement>('canvas[data-lego]')]);
+    }, { rootMargin: '300px 0px' });
+    io.observe(section);
+  }
+</script>

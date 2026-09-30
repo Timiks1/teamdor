@@ -23,4 +23,6 @@ export default defineConfig({
     }),
   ],
   build: { inlineStylesheets: 'always' },
+  // three.js (~130 КБ gzip) вантажиться ліниво лише в блоках з лего-деталями
+  vite: { build: { chunkSizeWarningLimit: 600 } },
 });

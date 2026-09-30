@@ -1,46 +1,18 @@
 ---
 import DoorIcon from './DoorIcon.astro';
+import Mark from './Mark.astro';
 import { getContent, type Lang } from '../lib/content';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const { hero } = getContent(lang).home;
 const lines = hero.title.split(/(?<=[.!?])\s+/);
 
-// Знак-арка (геометрія знака × K); при наведенні на смугу світла навколо неї розгоряється ореол, як від лампи
-const K = 5.4, CX = 1290, BASE = 703;
-const bar = { x: CX + 7 * K, w: 13 * K, h: 52 * K };
-const bx = bar.x + bar.w / 2, by = BASE - bar.h / 2;
-const archD = `M${CX - 28 * K},${BASE} L${CX - 28 * K},${BASE - 46 * K} A${28 * K},${28 * K} 0 0 1 ${CX + 28 * K},${BASE - 46 * K} L${CX + 28 * K},${BASE}`;
+// Знак у hero: ≈160 px на десктопі (праворуч від заголовка), ≈96 px на телефоні (над заголовком). Дод. ТЗ v0.2, п. 6.
 ---
 <section class="hero" id="top" data-hero>
-  <div class="hero-bg" aria-hidden="true">
-    <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <radialGradient id="lamp-wide">
-          <stop offset="0" stop-color="#7FB0FF" stop-opacity=".7" />
-          <stop offset=".25" stop-color="#7FB0FF" stop-opacity=".42" />
-          <stop offset=".55" stop-color="#7FB0FF" stop-opacity=".14" />
-          <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
-        </radialGradient>
-        <radialGradient id="lamp-core">
-          <stop offset="0" stop-color="#5C95FF" stop-opacity=".95" />
-          <stop offset=".5" stop-color="#7FB0FF" stop-opacity=".45" />
-          <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
-        </radialGradient>
-      </defs>
-      <g class="glow">
-        <ellipse cx={bx} cy={by} rx="300" ry="380" fill="url(#lamp-wide)" />
-        <ellipse cx={bx} cy={by} rx="90" ry="210" fill="url(#lamp-core)" />
-        <ellipse cx={bx} cy={BASE + 4} rx="190" ry="28" fill="url(#lamp-core)" />
-      </g>
-      <g class="door">
-        <path d={archD} class="arch" />
-        <rect class="slit" x={bar.x} y={BASE - bar.h} width={bar.w} height={bar.h} rx={bar.w / 2} />
-      </g>
-    </svg>
-  </div>
-
   <div class="wrap hero-inner">
+    <div class="hero-mark" aria-hidden="true"><Mark class="hero-sign" glow /></div>
+    <div class="hero-copy">
     <h1 class="hero-title">
       {lines.map((l, i) => <span class="line" style={`--i:${i}`}>{l}</span>)}
     </h1>
@@ -50,6 +22,7 @@ const archD = `M${CX - 28 * K},${BASE} L${CX - 28 * K},${BASE - 46 * K} A${28 * 
       <a class="btn btn--ghost" href="#pricing" data-cta="hero-prices">{hero.secondary}</a>
     </div>
     <p class="hero-note">{hero.note}</p>
+    </div>
   </div>
 </section>
 
@@ -57,9 +30,9 @@ const archD = `M${CX - 28 * K},${BASE} L${CX - 28 * K},${BASE - 46 * K} A${28 * 
   // Як у маленького логотипа: що ближче курсор до смуги світла, то яскравіший ореол (--g від 0 до 1).
   // Смуга велика, тому відстань рахуємо до її країв: над самою смугою — повне світло.
   const hero = document.querySelector<HTMLElement>('[data-hero]');
-  const bar = hero?.querySelector<SVGRectElement>('.slit');
+  const bar = hero?.querySelector<SVGRectElement>('.mark-light');
   if (hero && bar) {
-    const RADIUS = 420; // px — з якої відстані починає світитися
+    const RADIUS = 360; // px — з якої відстані починає світитися
     if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
       let px = -1e4, py = -1e4, raf = 0;
       const paint = () => {
@@ -87,39 +60,35 @@ const archD = `M${CX - 28 * K},${BASE} L${CX - 28 * K},${BASE - 46 * K} A${28 * 
 </script>
 
 <style>
-  .hero { position: relative; isolation: isolate; min-height: calc(100svh - var(--header-h)); display: flex; align-items: center; overflow: hidden; }
-  .hero-bg { position: absolute; inset: 0; z-index: -1; }
-  .hero-bg svg { width: 100%; height: 100%; }
-  .arch { fill: none; stroke: var(--ink); stroke-width: 30; stroke-linecap: round; }
-  .slit { fill: var(--beam); }
-  /* Як у маленького логотипа: при завантаженні світло «наливається» знизу вгору */
-  .slit { transform-box: fill-box; transform-origin: 50% 100%; animation: light-in .9s cubic-bezier(.4, 0, .2, 1) .2s both; }
+  .hero { --g: 0; position: relative; overflow: hidden; }
+  .hero-inner { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: clamp(32px, 6vw, 96px); padding-block: clamp(56px, 8vw, 112px) clamp(64px, 9vw, 128px); }
+  .hero-mark { order: 2; display: flex; justify-content: center; padding-right: clamp(0px, 4vw, 64px); }
+  .hero-mark :global(.hero-sign) { height: 160px; width: auto; color: var(--ink); }
+  /* Ореол «як від лампи»: яскравість --g (0…1) залежить від відстані курсора до смуги */
+  .hero-mark :global(.mark-glow) { opacity: var(--g); }
+  /* Як у маленького логотипа: при завантаженні світло «наливається» знизу вгору, один раз */
+  .hero-mark :global(.mark-light) { transform-box: fill-box; transform-origin: 50% 100%; animation: light-in .9s cubic-bezier(.4, 0, .2, 1) .2s both; }
   @keyframes light-in { from { transform: scaleY(0); } to { transform: none; } }
 
-  /* Ореол «як від лампи»: яскравість --g (0…1) залежить від відстані курсора до смуги */
-  .hero { --g: 0; }
-  .glow { opacity: var(--g); transform-box: fill-box; transform-origin: center; transform: scale(calc(.9 + var(--g) * .1)); }
-
-  .hero-inner { position: relative; padding-block: clamp(56px, 9vw, 120px); }
-  .hero-title { font-size: clamp(2.5rem, 8vw, 7.25rem); max-width: 11ch; }
+  .hero-title { font-size: clamp(2.5rem, 7.2vw, 6.5rem); max-width: 12ch; }
   .line { display: block; animation: rise .9s var(--ease-out) calc(var(--i) * .09s + .1s) both; }
   @keyframes rise { from { opacity: 0; transform: translateY(.35em); } to { opacity: 1; transform: none; } }
-  .hero-lead { font-size: clamp(1.25rem, 2vw, 1.625rem); line-height: 1.45; max-width: 30ch; margin-top: clamp(28px, 4vw, 40px); color: var(--ink); }
-  .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+  .hero-lead { font-size: clamp(1.25rem, 2vw, 1.625rem); line-height: 1.45; max-width: 30ch; margin-top: clamp(24px, 3.5vw, 36px); color: var(--ink); }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
   .hero-note { margin-top: 18px; font-size: 16px; color: var(--ink-2); }
 
   @media (max-width: 900px) {
-    .hero { align-items: flex-start; }
-    .hero-bg svg { position: absolute; top: auto; bottom: 0; left: -40vw; width: 150vw; height: auto; aspect-ratio: 1600 / 1000; max-width: none; }
-    .hero-inner { padding-bottom: min(60vw, 420px); }
+    .hero-inner { grid-template-columns: 1fr; gap: 20px; padding-block: 28px 48px; }
+    .hero-mark { order: -1; justify-content: flex-start; padding: 0 0 0 4px; }
+    .hero-mark :global(.hero-sign) { height: 96px; }
     .hero-title { max-width: none; }
+    .hero-lead { margin-top: 18px; }
+    .hero-actions { margin-top: 24px; gap: 10px; }
   }
   @media (max-width: 520px) {
     .hero-actions .btn { width: 100%; }
-    .hero-bg svg { left: -76vw; width: 175vw; }
-    .hero-inner { padding-bottom: 88vw; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .line, .slit { animation: none !important; }
+    .line, .hero-mark :global(.mark-light) { animation: none !important; }
   }
 </style>

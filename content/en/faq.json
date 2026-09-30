@@ -5,25 +5,85 @@
   "moreLabel": "Show more",
   "lessLabel": "Show less",
   "items": [
-    { "q": "Is the prototype really free? What's the catch?", "a": "There's no catch. The prototype is how we show that we understand your task. You see your website before paying, and we get a chance to win you over. One prototype per company, after a short call." },
-    { "q": "What if I don't like the prototype? Do I owe you anything?", "a": "No, nothing. Tell us what's wrong — we'll fix it, or we simply part as friends. No invoices, no obligations." },
-    { "q": "Why 50% prepayment after the prototype?", "a": "After the prototype the full work starts: designing all pages, code, integrations. The prepayment secures the agreement for both sides. You pay the rest after launch, once you've checked everything." },
-    { "q": "How much will my website cost?", "a": "Landing pages, business websites and online stores have fixed prices — see the Prices section. Catalogs, automation and bots are priced per task. The price goes into the contract and doesn't change." },
-    { "q": "How long from brief to launch?", "a": "Prototype — 48–72 hours. Then: a landing page from 3 business days, a business website from 7, an online store from 14. The exact deadline goes into the contract." },
-    { "q": "Why so affordable if it's hand-written code?", "a": "We have a well-tuned process: clear stages, proven solutions for typical tasks and no unnecessary approvals. You pay for the result, not for hours of meetings." },
-    { "q": "How do I pay?", "a": "Bank transfer under a contract. 50% after the prototype, the rest after launch." },
-    { "q": "Who owns the website — code, domain, access?", "a": "You do. The domain is registered in your name, and we hand over all access and the code. You can move to another contractor at any time — no buyouts, no hostages." },
-    { "q": "What happens after the 1-year warranty?", "a": "The website keeps working. You renew hosting and domain yourself or with us. If you need edits or support, we agree separately — no mandatory subscription." },
-    { "q": "What if you miss the deadline?", "a": "The deadline goes into the contract together with the price. If a delay is our fault, our liability is written into the contract too." },
-    { "q": "Do you guarantee #1 on Google?", "a": "Honestly — no, and you shouldn't trust anyone who promises that. We guarantee a technically sound website: fast, well-structured, with analytics set up. That's the foundation any promotion needs." },
-    { "q": "What if I don't know exactly what I need?", "a": "That's normal. Come with one idea — we'll figure it out together at the brief and suggest what fits you." },
-    { "q": "Can we start without texts and photos?", "a": "Yes. We write the copy from your brief and pick stock photos or suggest what to shoot. You can replace them later in the admin panel." },
-    { "q": "What if I don't like the design?", "a": "That's why we start with a moodboard and 2 screens. You approve the style before we design the whole site. Revisions at this stage are included." },
-    { "q": "How are you different from website builders (Tilda, Wix)?", "a": "A coded website is faster, ranks better on Google and isn't tied to a platform with a monthly fee. And most importantly — you don't have to build it yourself." },
-    { "q": "Do you work only in Ukraine or abroad too?", "a": "Across Ukraine and abroad. All communication is online: calls, messengers, email." },
-    { "q": "Can I edit the website myself?", "a": "Yes. In packages with an admin panel you change texts, prices and photos yourself. After launch we'll show you how — even from your phone." },
-    { "q": "What if I need a new page in six months?", "a": "Message us — we'll estimate and build it. Price and timeline are agreed before we start." },
-    { "q": "What's the difference between a landing page and a full website?", "a": "A landing page is one page for one offer, e.g. an ad campaign. A website is several pages about your whole business, with an admin panel and a structure Google understands." },
-    { "q": "Which integrations can you connect?", "a": "Telegram, CRM, online payments, delivery services, Google Sheets, 1C and other services with an API. Tell us what you use — we'll advise." }
+    {
+      "q": "Is the prototype really free? What's the catch?",
+      "a": "There's no catch. The prototype is how we show that we understand your task. You see your website before paying, and we get a chance to win you over. One prototype per company, after a short call."
+    },
+    {
+      "q": "What if I don't like the prototype? Do I owe you anything?",
+      "a": "No, nothing. Tell us what's wrong — we'll fix it, or we simply part as friends. No invoices, no obligations."
+    },
+    {
+      "q": "Why 50% prepayment after the prototype?",
+      "a": "After the prototype the full work starts: designing all pages, code, integrations. The prepayment secures the agreement for both sides. You pay the rest after launch, once you've checked everything."
+    },
+    {
+      "q": "How much will my website cost?",
+      "a": "Landing pages, business websites and online stores have starting prices — see the Prices section. Catalogs, automation and bots are priced per task. We fix the exact amount in the contract after the free prototype, and it doesn’t change after that."
+    },
+    {
+      "q": "How long from brief to launch?",
+      "a": "Prototype — 48–72 hours. Then: a landing page from 3 business days, a business website from 7, an online store from 14. The exact deadline goes into the contract."
+    },
+    {
+      "q": "Why so affordable if it's hand-written code?",
+      "a": "We have a well-tuned process: clear stages, proven solutions for typical tasks and no unnecessary approvals. You pay for the result, not for hours of meetings."
+    },
+    {
+      "q": "How do I pay?",
+      "a": "Bank transfer under a contract. 50% after the prototype, the rest after launch."
+    },
+    {
+      "q": "Who owns the website — code, domain, access?",
+      "a": "You do. The domain is registered in your name, and we hand over all access and the code. You can move to another contractor at any time — no buyouts, no hostages."
+    },
+    {
+      "q": "What happens after the 1-year warranty?",
+      "a": "The website keeps working. You renew hosting and domain yourself or with us. If you need edits or support, we agree separately — no mandatory subscription."
+    },
+    {
+      "q": "What if you miss the deadline?",
+      "a": "The deadline goes into the contract together with the price. If a delay is our fault, our liability is written into the contract too."
+    },
+    {
+      "q": "Do you guarantee #1 on Google?",
+      "a": "Honestly — no, and you shouldn't trust anyone who promises that. We guarantee a technically sound website: fast, well-structured, with analytics set up. That's the foundation any promotion needs."
+    },
+    {
+      "q": "What if I don't know exactly what I need?",
+      "a": "That's normal. Come with one idea — we'll figure it out together at the brief and suggest what fits you."
+    },
+    {
+      "q": "Can we start without texts and photos?",
+      "a": "Yes. We write the copy from your brief and pick stock photos or suggest what to shoot. You can replace them later in the admin panel."
+    },
+    {
+      "q": "What if I don't like the design?",
+      "a": "That's why we start with a moodboard and 2 screens. You approve the style before we design the whole site. Revisions at this stage are included."
+    },
+    {
+      "q": "How are you different from website builders (Tilda, Wix)?",
+      "a": "A coded website is faster, ranks better on Google and isn't tied to a platform with a monthly fee. And most importantly — you don't have to build it yourself."
+    },
+    {
+      "q": "Do you work only in Ukraine or abroad too?",
+      "a": "Across Ukraine and abroad. All communication is online: calls, messengers, email."
+    },
+    {
+      "q": "Can I edit the website myself?",
+      "a": "Yes. In packages with an admin panel you change texts, prices and photos yourself. After launch we'll show you how — even from your phone."
+    },
+    {
+      "q": "What if I need a new page in six months?",
+      "a": "Message us — we'll estimate and build it. Price and timeline are agreed before we start."
+    },
+    {
+      "q": "What's the difference between a landing page and a full website?",
+      "a": "A landing page is one page for one offer, e.g. an ad campaign. A website is several pages about your whole business, with an admin panel and a structure Google understands."
+    },
+    {
+      "q": "Which integrations can you connect?",
+      "a": "Telegram, CRM, online payments, delivery services, Google Sheets, 1C and other services with an API. Tell us what you use — we'll advise."
+    }
   ]
 }

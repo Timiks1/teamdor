@@ -1,0 +1,21 @@
+{
+  "eyebrow": "Automation",
+  "title": "We automate the routine. Decisions stay with you.",
+  "text": "No “AI for the sake of AI”. First we figure out how the process really works in your company, then we hand one specific, easy-to-check job to the machine.",
+  "stepsTitle": "How we do it",
+  "steps": [
+    { "title": "Map the process.", "text": "How a lead or an order moves through your business today: who does what, where time gets lost." },
+    { "title": "Write down the rules.", "text": "What to count, where to pass it, what counts as an error. Without this, automation only speeds up the mess." },
+    { "title": "Automate one function.", "text": "Not “a robot instead of a manager”, but one specific routine with a clear result." },
+    { "title": "Measure the effect.", "text": "How many hours and errors went away. No effect — we change the approach." }
+  ],
+  "examplesTitle": "What can be automated",
+  "examples": [
+    "Website leads go straight to Telegram and your CRM",
+    "One price list updates the website and marketplaces",
+    "A weekly sales report builds itself",
+    "A bot takes orders and books clients"
+  ],
+  "principle": "AI is a tool inside the process. People set the rules and make the decisions.",
+  "button": "Tell us what eats your time"
+}

@@ -19,10 +19,20 @@ npm run build      # збірка в dist/
 | Весь контент (тексти, ціни, кейси, FAQ, контакти) | `content/uk/*.json`, `content/en/*.json`, `content/contacts.json` |
 | Юридичні сторінки | `content/{uk,en}/legal/*.md` → `/privacy`, `/offer`, `/cookies` (+ `/en/...`) |
 | Блоки головної | `src/components/*.astro` (порядок — `HomePage.astro`) |
-| Пазл «Етапи» | `src/components/Stages.astro`, ізометрія — `src/lib/iso.ts` |
+| «Етапи» (двері з лего, карусель) | `src/components/Stages.astro`, сцена — `src/lib/lego/door.js` |
+| «Що робимо» і «Автоматизація» | `src/components/Services.astro`, `Automation.astro`, збірки — `src/lib/lego/builds.js` |
+| Рушій лего-деталей (three.js) | `src/lib/lego/kit.js`, спільний рендерер карток — `src/lib/lego/shelf.js` |
 | Форма → email / CRM | `src/pages/api/lead.ts`, `src/lib/lead.ts` |
 | Кольори, шрифти, кнопки | `src/styles/global.css` |
 | Адмінка | `public/admin/` → `/admin` |
+
+## Лего-ілюстрації (дод. ТЗ v0.2)
+
+- three.js вантажиться ліниво, лише коли блок з деталями наближається до екрана; перший екран його не чекає.
+- Для кожної сцени є статична PNG у `public/img/lego/` (той самий кадр): видно до завантаження і якщо WebGL недоступний.
+  Після зміни збірок у `builds.js` / `door.js` PNG треба перегенерувати (відрендерити сцени тим самим рушієм і зберегти кадри).
+- Усі картки послуг малює один WebGL-рендерер; поза екраном нічого не крутиться; «зменшити рух» — статичний кадр.
+- Шрифти Fixel урізані до латиниці й кирилиці (≈30 % легші). Якщо в текстах з'являться інші символи — перегенерувати з оригіналів.
 
 ## Адмінка
 

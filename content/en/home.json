@@ -10,10 +10,22 @@
     "eyebrow": "Sounds familiar?",
     "title": "Websites hurt?",
     "items": [
-      { "title": "You paid — and you wait for months", "text": "The prepayment is gone, the website isn't there. Deadlines slip, replies come once a week." },
-      { "title": "No idea what you'll get", "text": "You pay upfront and see the result only at the end. And it's nothing like you imagined." },
-      { "title": "Every edit goes through a developer", "text": "To change a price or a phone number you have to ask someone and wait. Or pay again." },
-      { "title": "A website, but no leads", "text": "It looks nice, but clients don't call. And it's unclear what to do about it." }
+      {
+        "title": "You paid — and you wait for months",
+        "text": "The prepayment is gone, the website isn't there. Deadlines slip, replies come once a week."
+      },
+      {
+        "title": "No idea what you'll get",
+        "text": "You pay upfront and see the result only at the end. And it's nothing like you imagined."
+      },
+      {
+        "title": "Every edit goes through a developer",
+        "text": "To change a price or a phone number you have to ask someone and wait. Or pay again."
+      },
+      {
+        "title": "A website, but no leads",
+        "text": "It looks nice, but clients don't call. And it's unclear what to do about it."
+      }
     ]
   },
   "stages": {
@@ -22,23 +34,78 @@
     "prepayNote": "Then — 50% prepayment, and we start.",
     "detailsLabel": "Every stage in detail",
     "steps": [
-      { "title": "Brief", "text": "We learn about your business, your clients and the goal of the site.", "details": "A short 20–30 minute call. We ask in plain words: what you do, who your clients are, what the website should do. We write the spec ourselves — you don't need to prepare anything." },
-      { "title": "Research", "text": "We study your competitors and niche to find how you can stand out.", "details": "We look at competitors' websites — what works and what doesn't. We find what makes you different, so clients choose you." },
-      { "title": "Free prototype", "text": "In 48–72 hours you see your website. Like it — we go on.", "details": "We build a clickable prototype of the homepage: open it on your phone, scroll, tap the buttons. It's free and you owe us nothing." },
-      { "title": "Moodboard", "text": "We agree on the style: colours, fonts, mood.", "details": "We show a selection of colours, fonts and examples. You pick what feels right, so the design hits the mark from the start." },
-      { "title": "Design", "text": "First 2 screens, then the whole site in the approved style.", "details": "We design two key screens first and approve them with you. Then the rest of the site in the same style. No surprises at the end." },
-      { "title": "Mobile", "text": "Your site looks perfect on phones and tablets.", "details": "Most clients open websites on their phones. So we check every screen on a phone, a tablet and a laptop." },
-      { "title": "Build & launch", "text": "We write the code, test buttons, forms and speed.", "details": "We write your site in code — no website builders. We connect the domain, SSL, analytics and forms, check speed and every button. Then we launch." },
-      { "title": "Support", "text": "A year of warranty and help after launch.", "details": "For a year after launch we fix bugs for free and help with questions. We show you how to change texts and prices in the admin panel yourself." }
+      {
+        "title": "Brief",
+        "text": "We learn about your business, your clients and the goal of the site.",
+        "details": "A short 20–30 minute call. We ask in plain words: what you do, who your clients are, what the website should do. We write the spec ourselves — you don't need to prepare anything."
+      },
+      {
+        "title": "Research",
+        "text": "We study your competitors and niche to find what makes you stand out.",
+        "details": "We look at competitors' websites — what works and what doesn't. We find what makes you different, so clients choose you."
+      },
+      {
+        "title": "Free prototype",
+        "text": "In 48–72 hours you see your website. Like it — we go on.",
+        "details": "We build a clickable prototype of the homepage: open it on your phone, scroll, tap the buttons. It's free and you owe us nothing."
+      },
+      {
+        "title": "Moodboard",
+        "text": "We agree on the style: colours, fonts, mood.",
+        "details": "We show a selection of colours, fonts and examples. You pick what feels right, so the design hits the mark from the start."
+      },
+      {
+        "title": "Design",
+        "text": "First 2 screens, then the whole site in the approved style.",
+        "details": "We design two key screens first and approve them with you. Then the rest of the site in the same style. No surprises at the end."
+      },
+      {
+        "title": "Mobile",
+        "text": "Your site looks perfect on phones and tablets.",
+        "details": "Most clients open websites on their phones. So we check every screen on a phone, a tablet and a laptop."
+      },
+      {
+        "title": "Build & launch",
+        "text": "We write the code, test buttons, forms and speed.",
+        "details": "We write your site in code — no website builders. We connect the domain, SSL, analytics and forms, check speed and every button. Then we launch."
+      },
+      {
+        "title": "Support",
+        "text": "A year of warranty and help after launch.",
+        "details": "For a year after launch we fix bugs for free and help with questions. We show you how to change texts and prices in the admin panel yourself."
+      }
     ],
-    "finalCta": "Build my site"
+    "prevLabel": "Previous stage",
+    "nextLabel": "Next stage",
+    "carouselLabel": "carousel",
+    "stageLabel": "Stage"
   },
   "directions": {
     "eyebrow": "Where to start",
     "title": "Two paths",
     "cards": [
-      { "title": "New website", "text": "No website yet, or just an idea.", "points": ["Come with one idea — we'll think through the rest", "Free prototype in 48–72 hours", "Fixed price and deadline in the contract"], "button": "Start from scratch", "href": "#contact" },
-      { "title": "Already have one", "text": "There's a website, but it doesn't work as it should.", "points": ["We'll find what's blocking your leads", "Redesign or rebuild in code", "Automate routine: CRM, bots, spreadsheets"], "button": "Improve my website", "href": "#contact" }
+      {
+        "title": "New website",
+        "text": "No website yet, or just an idea.",
+        "points": [
+          "Come with one idea — we'll think through the rest",
+          "Free prototype in 48–72 hours",
+          "Fixed price and deadline in the contract"
+        ],
+        "button": "Start from scratch",
+        "href": "#contact"
+      },
+      {
+        "title": "Already have one",
+        "text": "There's a website, but it doesn't work as it should.",
+        "points": [
+          "We'll find what's blocking your leads",
+          "Redesign or rebuild in code",
+          "Automate routine: CRM, bots, spreadsheets"
+        ],
+        "button": "Improve my website",
+        "href": "#contact"
+      }
     ]
   },
   "stats": {
@@ -46,10 +113,22 @@
     "title": "We are Teamdor studio",
     "text": "We build websites, catalogs, online stores and automation, turnkey. A well-tuned process, a fixed price in the contract, and the code and domain are yours.",
     "items": [
-      { "value": "48–72 h", "label": "to your prototype" },
-      { "value": "$0", "label": "for the prototype" },
-      { "value": "1 year", "label": "warranty after launch" },
-      { "value": "100%", "label": "the code and domain are yours" }
+      {
+        "value": "48–72 h",
+        "label": "to your prototype"
+      },
+      {
+        "value": "$0",
+        "label": "for the prototype"
+      },
+      {
+        "value": "1 year",
+        "label": "warranty after launch"
+      },
+      {
+        "value": "100%",
+        "label": "the code and domain are yours"
+      }
     ]
   },
   "reviews": {

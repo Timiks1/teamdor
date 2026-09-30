@@ -1,5 +1,7 @@
 ---
-import DoorIcon from './DoorIcon.astro';
+// «Етапи» (дод. ТЗ v0.2, п. 2): одна дверь збирається плавно — деталі проявляються над місцем і опускаються.
+// Етапи перемикаються самі кожні 4,5 с; вручну — сегменти, стрілки, свайп, ← →.
+// Сцена (three.js) вантажиться, коли блок біля екрана; до того й без WebGL — PNG того самого етапу.
 import { getContent, type Lang } from '../lib/content';
 
 interface Props { lang: Lang }
@@ -7,82 +9,42 @@ const { lang } = Astro.props;
 const { stages } = getContent(lang).home;
 const steps = stages.steps;
 const pad = (n: number) => String(n).padStart(2, '0');
-
-// ——— Ілюстрація: кадри-«інструкція LEGO» (8 кроків + фінал), поверх — живе світло від синьої смуги ———
-// Кадри обрізані до спільної рамки 1298×1442; координати світла — у цій системі.
-const FRAMES = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6', 'step-7', 'step-8', 'final'];
-const img = (name: string, w: 700 | 1200) => `/img/stages/${name}-${w}.png`;
-const VW = 1298, VH = 1442;
-const BAR = { x0: 820, x1: 915, top: 569, bottom: 1005, cx: 867.5 }; // відкрита частина смуги (нижче її частково закриває телефон)
-const LIGHT_FROM = 7; // з якого кроку в кадрі є синя смуга
+const first = steps[0];
+const data = steps.map((s, i) => ({ t: s.title, d: s.text, x: i === 2 ? stages.prepayNote : '' }));
 ---
-<section class="stages" id="stages" data-stages data-steps={steps.length} data-light-from={LIGHT_FROM} aria-labelledby="stages-title">
-  <div class="track" data-track>
-  <div class="pin">
-    <div class="panel-text">
-      <div class="pt-top">
-        <p class="pt-eyebrow">{stages.eyebrow}</p>
-        <h2 id="stages-title" class="sr-only">{stages.title}</h2>
+<section class="stages" id="stages" aria-roledescription={stages.carouselLabel} aria-labelledby="stages-title" data-stages>
+  <div class="wrap stages__wrap">
+    <div class="stages__side">
+      <p class="stages__eyebrow">{stages.eyebrow}</p>
+      <h2 id="stages-title" class="sr-only">{stages.title}</h2>
+      <div class="stages__text" aria-live="polite">
+        <div class="stages__swap" data-swap>
+          <p class="stages__num" data-num>01</p>
+          <h3 class="stages__title" data-title>{first.title}</h3>
+          <p class="stages__desc" data-desc>{first.text}</p>
+          <p class="stages__extra" data-extra hidden></p>
+        </div>
       </div>
-      <ol class="step-list">
-        {steps.map((st, i) => (
-          <li class:list={['step', { 'is-active': i === 0 }]} data-step-i={i}>
-            <span class="step-num">{pad(i + 1)}</span>
-            <h3 class="step-title">{st.title}</h3>
-            <p class="step-text">{st.text}</p>
-            {i === 2 && <p class="step-note">{stages.prepayNote}</p>}
-            {i === steps.length - 1 && (
-              <a class="btn step-cta" href="#contact" data-cta="stages-final"><DoorIcon />{stages.finalCta}</a>
-            )}
-          </li>
-        ))}
-      </ol>
-      <div class="progress" aria-hidden="true">
-        <span class="progress-count"><b data-count>01</b> / {pad(steps.length)}</span>
-        <div class="dots">
-          {steps.map((_, i) => <button type="button" class:list={['dot', { 'is-active': i === 0 }]} data-dot={i} tabindex="-1"><span class="sr-only">{pad(i + 1)}</span></button>)}
+      <div class="stages__bar">
+        <p class="stages__count" data-count>01 <span>/ {pad(steps.length)}</span></p>
+        <div class="stages__segs" role="tablist" aria-label={stages.stageLabel}>
+          {steps.map((s, i) => (
+            <button type="button" class="seg" role="tab" aria-selected={i === 0 ? 'true' : 'false'} aria-label={`${i + 1}. ${s.title}`} data-seg={i + 1}><i><b></b></i></button>
+          ))}
+        </div>
+        <div class="stages__arrows">
+          <button type="button" class="arrow" aria-label={stages.prevLabel} data-prev><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg></button>
+          <button type="button" class="arrow" aria-label={stages.nextLabel} data-next><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></button>
         </div>
       </div>
     </div>
 
-    <div class="panel-art">
-      <div class="art-card">
-        <svg class="scene" viewBox={`0 0 ${VW} ${VH}`} role="img" aria-label={stages.title} data-scene>
-          <defs>
-            <radialGradient id="st-wide">
-              <stop offset="0" stop-color="#7FB0FF" stop-opacity=".75" />
-              <stop offset=".3" stop-color="#7FB0FF" stop-opacity=".42" />
-              <stop offset=".6" stop-color="#7FB0FF" stop-opacity=".14" />
-              <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
-            </radialGradient>
-            <radialGradient id="st-core">
-              <stop offset="0" stop-color="#5C95FF" stop-opacity=".9" />
-              <stop offset=".5" stop-color="#7FB0FF" stop-opacity=".4" />
-              <stop offset="1" stop-color="#7FB0FF" stop-opacity="0" />
-            </radialGradient>
-          </defs>
-          {FRAMES.map((name, i) => (
-            <image
-              class:list={['st-img', { 'is-cur': i === FRAMES.length - 1 }]}
-              data-i={i}
-              width={VW} height={VH}
-              href={i === FRAMES.length - 1 ? img(name, 1200) : undefined}
-              data-sm={img(name, 700)} data-lg={img(name, 1200)}
-            />
-          ))}
-          <g class="lamp" aria-hidden="true">
-            <g class="lamp-glow">
-              <ellipse cx={BAR.cx} cy="800" rx="470" ry="600" fill="url(#st-wide)" />
-              <ellipse cx={BAR.cx} cy="800" rx="160" ry="360" fill="url(#st-core)" />
-              <ellipse cx={BAR.cx} cy="1075" rx="330" ry="70" fill="url(#st-core)" />
-            </g>
-            <path class="lamp-bar" d={`M${BAR.x0},${BAR.bottom} V${BAR.top + 47.5} A47.5,47.5 0 0 1 ${BAR.x1},${BAR.top + 47.5} V${BAR.bottom} Z`} />
-          </g>
-          <rect class="bar-hit" x={BAR.x0 - 40} y={BAR.top - 40} width={BAR.x1 - BAR.x0 + 80} height={BAR.bottom - BAR.top + 110} />
-        </svg>
-      </div>
+    <div class="stages__card" data-card>
+      {steps.map((_, i) => (
+        <img class:list={['poster', { 'is-cur': i === 0 }]} data-poster={i + 1} src={`/img/lego/stage-${i + 1}.png`} alt="" width="1200" height="900" loading="lazy" decoding="async" />
+      ))}
+      <canvas aria-hidden="true" data-canvas></canvas>
     </div>
-  </div>
   </div>
 
   <div class="wrap more">
@@ -102,56 +64,48 @@ const LIGHT_FROM = 7; // з якого кроку в кадрі є синя см
       </ol>
     </details>
   </div>
+
+  <script type="application/json" data-stages-json set:html={JSON.stringify(data)} />
 </section>
 
 <style>
-  .stages { --pin-h: calc(100svh - var(--header-h)); position: relative; background: var(--paper); }
-  .pin { display: grid; grid-template-columns: 1fr 1fr; min-height: 640px; }
+  .stages { background: var(--night); color: var(--paper); }
+  .stages__wrap { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px; align-items: center; padding-block: clamp(56px, 8vw, 96px) 32px; }
+  .stages__eyebrow { font-size: 15px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(247, 245, 241, .7); margin-bottom: 28px; }
+  .stages__text { position: relative; min-height: 250px; }
+  .stages__swap { will-change: opacity, transform; }
+  .stages__num { font-weight: 500; font-size: 17px; line-height: 1; color: rgba(247, 245, 241, .6); margin-bottom: 14px; }
+  .stages__title { font-family: var(--font-display); font-weight: 600; font-size: clamp(2rem, 3.6vw, 2.75rem); line-height: 1.08; letter-spacing: -0.025em; margin-bottom: 14px; text-wrap: balance; }
+  .stages__desc { font-size: 19px; line-height: 1.55; color: #DCE1EB; max-width: 34ch; }
+  .stages__extra { font-size: 17px; color: rgba(247, 245, 241, .7); margin-top: 12px; }
 
-  /* Ліва панель — Night */
-  .panel-text {
-    position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 24px;
-    background: var(--night); color: var(--paper);
-    padding: clamp(28px, 4vw, 56px) clamp(24px, 5vw, 72px);
-  }
-  .pt-eyebrow { font-size: 15px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: rgba(247, 245, 241, .7); }
-  .step-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 48px; align-content: center; }
-  .step-num { display: block; font-family: var(--font-display); font-weight: 600; font-size: 20px; color: rgba(247, 245, 241, .55); margin-bottom: 12px; }
-  .step-title { font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1; letter-spacing: -0.035em; }
-  .step-text { margin-top: 20px; font-size: clamp(1.25rem, 1.8vw, 1.625rem); line-height: 1.45; color: rgba(247, 245, 241, .88); max-width: 28ch; }
-  .step-note { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(247, 245, 241, .2); font-size: 17px; color: rgba(247, 245, 241, .72); max-width: 32ch; }
-  .step-cta { margin-top: 32px; }
+  .stages__bar { display: flex; align-items: center; gap: 16px; margin-top: 36px; }
+  .stages__count { font-weight: 600; font-size: 16px; line-height: 1; min-width: 56px; font-variant-numeric: tabular-nums; }
+  .stages__count :global(span) { color: rgba(247, 245, 241, .6); font-weight: 500; }
+  .stages__segs { display: flex; gap: 6px; flex: 1; }
+  .seg { flex: 1; height: 44px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; align-items: center; touch-action: manipulation; }
+  .seg i { position: relative; display: block; width: 100%; height: 4px; border-radius: 2px; background: #2A3757; overflow: hidden; }
+  .seg b { position: absolute; inset: 0; background: var(--beam); transform-origin: 0 50%; transform: scaleX(0); }
+  .seg.is-done b { transform: scaleX(1); background: #FFFFFF; }
+  .stages__arrows { display: flex; gap: 8px; }
+  .arrow { width: 44px; height: 44px; border-radius: 999px; border: 1px solid #2A3757; background: transparent; color: #fff; cursor: pointer; display: grid; place-items: center; touch-action: manipulation; transition: background-color .15s ease, transform .16s cubic-bezier(.23, 1, .32, 1); }
+  .arrow:active { transform: scale(.96); }
+  .arrow svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  @media (hover: hover) and (pointer: fine) { .arrow:hover { background: #1A2645; } }
 
-  .progress { display: flex; align-items: center; gap: 20px; }
-  .progress-count { font-size: 15px; color: rgba(247, 245, 241, .6); font-variant-numeric: tabular-nums; min-width: 64px; }
-  .progress-count b { color: var(--paper); font-weight: 600; }
-  .dots { display: flex; align-items: center; gap: 8px; }
-  .dot { width: 10px; height: 10px; padding: 0; border: 0; border-radius: 99px; background: rgba(247, 245, 241, .22); cursor: pointer; transition: width .35s var(--ease-out), background .35s; }
-  .dot.is-done { background: rgba(247, 245, 241, .6); }
-  .dot.is-active { width: 44px; background: var(--beam); box-shadow: 0 0 12px rgba(127, 176, 255, .6); }
+  .stages__card { position: relative; background: #FFFFFF; border-radius: 24px; aspect-ratio: 4 / 3; overflow: hidden; min-width: 0; max-width: 100%; touch-action: pan-y; }
+  .stages__card canvas, .poster { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .poster { object-fit: contain; opacity: 0; transition: opacity .5s ease; }
+  .poster.is-cur { opacity: 1; }
+  .stages__card canvas { opacity: 0; transition: opacity .3s ease; }
+  .stages__card.is-live canvas { opacity: 1; }
+  .stages__card.is-live .poster { opacity: 0; }
+  /* Без JS — зібрані двері */
+  :global(:root:not(.js)) .poster { opacity: 0; }
+  :global(:root:not(.js)) .poster[data-poster='8'] { opacity: 1; }
 
-  /* Права панель — світла, з білою карткою */
-  .panel-art { display: grid; place-items: center; background: var(--sand); padding: clamp(20px, 3vw, 48px); }
-  .art-card { overflow: hidden; width: 100%; height: 100%; max-height: 720px; display: grid; place-items: center; background: #FDFDFD; border-radius: var(--radius); padding: clamp(12px, 2vw, 32px); box-shadow: 0 1px 0 var(--line); }
-  .scene { width: 100%; height: 100%; max-height: 640px; }
-
-  /* Кадри змінюють один одного плавним перетіканням */
-  .st-img { opacity: 0; transition: opacity .45s ease; }
-  .st-img.is-cur { opacity: 1; }
-
-  /* Світло: тонує білі поверхні (множення), чорні лінії лишає чіткими; смуга домальовується поверх, щоб не темніла */
-  .lamp { opacity: 0; pointer-events: none; transition: opacity 1s ease; }
-  .lamp-glow { mix-blend-mode: multiply; transform-box: fill-box; transform-origin: 50% 55%; transform: scale(.9); transition: transform .6s ease; }
-  .lamp-bar { fill: #0B5FFF; }
-  .is-light-on .lamp { opacity: .55; }        /* крок 7: світло вмикається */
-  .is-light-full .lamp { opacity: .85; }      /* фінал: двері зібрані */
-  .is-light-full.is-glow .lamp { opacity: 1; transition: opacity .45s ease-out; }
-  .is-light-full.is-glow .lamp-glow { transform: scale(1.08); transition: transform .45s ease-out; }
-  .bar-hit { fill: transparent; pointer-events: none; }
-  .is-light-full .bar-hit { pointer-events: all; cursor: default; }
-
-  .more { padding-block: 32px clamp(72px, 10vw, 128px); }
-  .more-details { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .more { padding-block: 24px clamp(56px, 8vw, 96px); }
+  .more-details { border-top: 1px solid #2A3757; border-bottom: 1px solid #2A3757; }
   .more-details summary {
     display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 72px;
     font-family: var(--font-display); font-weight: 600; font-size: clamp(1.25rem, 2vw, 1.5rem); cursor: pointer; list-style: none;
@@ -161,138 +115,122 @@ const LIGHT_FROM = 7; // з якого кроку в кадрі є синя см
   .more-details[open] summary::after { content: '–'; }
   .more-list { list-style: none; margin: 0; padding: 0 0 32px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 56px; }
   .more-list li { display: grid; grid-template-columns: 44px 1fr; gap: 12px; }
-  .more-num { font-family: var(--font-display); font-weight: 600; color: var(--ink-2); padding-top: 2px; }
+  .more-num { font-family: var(--font-display); font-weight: 600; color: rgba(247, 245, 241, .6); padding-top: 2px; }
   .more-list h3 { font-size: 1.375rem; }
-  .more-list p { margin-top: 8px; color: var(--ink-2); }
-  .more-note { font-weight: 600; color: var(--ink) !important; }
-
-  /* ——— Живий режим (є JS і рух не вимкнено) ——— */
-  :global(:root.js) .track { height: calc(var(--pin-h) * 4.6); }
-  :global(:root.js) .pin { position: sticky; top: var(--header-h); height: var(--pin-h); min-height: 0; }
-  :global(:root.js) .step-list { position: relative; display: block; }
-  :global(:root.js) .step {
-    position: absolute; left: 0; right: 0; top: 50%;
-    opacity: 0; transform: translateY(calc(-50% + 28px)); pointer-events: none;
-    transition: opacity .45s ease, transform .6s var(--ease-out);
-  }
-  :global(:root.js) .step.is-past { transform: translateY(calc(-50% - 28px)); }
-  :global(:root.js) .step.is-active { opacity: 1; transform: translateY(-50%); pointer-events: auto; transition-delay: .08s; }
-
-  /* Без JS: одразу фінальний кадр зі світлом */
-  :global(:root:not(.js)) .lamp { opacity: .85; }
-
-  /* Статичний режим (без JS або «зменшити рух»): усі етапи списком, ілюстрація зібрана */
-  :global(:root:not(.js)) .progress { display: none; }
-  :global(:root:not(.js)) .step-list { gap: 40px; }
-  :global(:root:not(.js)) .step-title { font-size: clamp(1.75rem, 3vw, 2.5rem); }
-  :global(:root:not(.js)) .step-text { font-size: 19px; margin-top: 10px; }
-  :global(:root:not(.js)) .panel-art { position: sticky; top: var(--header-h); height: calc(100svh - var(--header-h)); align-self: start; }
+  .more-list p { margin-top: 8px; color: #DCE1EB; }
+  .more-note { font-weight: 600; color: var(--paper) !important; }
 
   @media (max-width: 900px) {
-    .pin { grid-template-columns: 1fr; }
+    .stages__wrap { grid-template-columns: 1fr; gap: 20px; padding-top: 48px; }
+    .stages__text { min-height: 210px; }
+    .stages__eyebrow { margin-bottom: 18px; }
+    .stages__bar { margin-top: 16px; gap: 12px; }
+    .stages__card { border-radius: 20px; }
     .more-list { grid-template-columns: 1fr; }
-    :global(:root.js) .pin { grid-template-rows: minmax(0, 52%) minmax(0, 48%); }
-    :global(:root.js) .panel-text { padding: 20px 20px 18px; gap: 12px; }
-    :global(:root.js) .step-title { font-size: clamp(2rem, 9vw, 2.75rem); }
-    :global(:root.js) .step-text { font-size: 18px; margin-top: 12px; }
-    :global(:root.js) .step-note { font-size: 15px; margin-top: 10px; padding-top: 10px; }
-    :global(:root.js) .step-cta { margin-top: 16px; }
-    :global(:root.js) .step-num { margin-bottom: 6px; font-size: 17px; }
-    .dot { width: 8px; height: 8px; }
-    .dot.is-active { width: 28px; }
-    .dots { gap: 6px; }
-    .panel-art { padding: 12px; }
-    .art-card { padding: 8px; }
-    :global(:root:not(.js)) .panel-art { position: static; height: auto; order: -1; }
   }
 </style>
 
 <script>
   const sec = document.querySelector<HTMLElement>('[data-stages]');
-  const root = document.documentElement;
-  if (sec && root.classList.contains('js')) {
-    // Збирається по кроках скролу завжди; при «зменшити рух» — без падіння й переходів, блоки просто з'являються
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const total = Number(sec.dataset.steps) || 8;
-    const track = sec.querySelector<HTMLElement>('[data-track]')!;
-    const pin = sec.querySelector<HTMLElement>('.pin')!;
-    const stepEls = [...sec.querySelectorAll<HTMLElement>('.step')];
-    const dots = [...sec.querySelectorAll<HTMLButtonElement>('[data-dot]')];
-    const count = sec.querySelector<HTMLElement>('[data-count]')!;
-    const scene = sec.querySelector<SVGSVGElement>('[data-scene]')!;
-    const imgs = [...sec.querySelectorAll<SVGImageElement>('.st-img')];
-    const hit = sec.querySelector<SVGRectElement>('.bar-hit')!;
-    const FINAL = imgs.length - 1;
-    const LIGHT_FROM = Number(sec.dataset.lightFrom) || 7;
-    let current = -1;
-    let landTimer: number | undefined;
+  if (sec) {
+    const STEP_MS = 4500;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const data: { t: string; d: string; x: string }[] = JSON.parse(sec.querySelector('[data-stages-json]')!.textContent || '[]');
+    const total = data.length;
+    const $ = <T extends Element = HTMLElement>(s: string) => sec.querySelector<T>(s)!;
+    const swap = $('[data-swap]');
+    const segs = [...sec.querySelectorAll<HTMLButtonElement>('[data-seg]')];
+    const posters = [...sec.querySelectorAll<HTMLImageElement>('[data-poster]')];
+    const card = $('[data-card]');
+    const canvas = $<HTMLCanvasElement>('[data-canvas]');
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const next = () => (stage === total ? 1 : stage + 1);
+    const prev = () => (stage === 1 ? total : stage - 1);
 
-    // Кадри підвантажуються, коли блок наближається до екрана; на вузьких екранах — менші
-    let loaded = false;
-    const load = () => {
-      if (loaded) return;
-      loaded = true;
-      const small = scene.getBoundingClientRect().width < 520;
-      imgs.forEach((im) => im.setAttribute('href', (small ? im.dataset.sm : im.dataset.lg)!));
-    };
-    new IntersectionObserver((e, o) => { if (e.some((x) => x.isIntersecting)) { load(); o.disconnect(); } }, { rootMargin: '1200px 0px' }).observe(sec);
+    let stage = 1;
+    let door: { goTo: (n: number, o?: { instant?: boolean }) => void } | null = null;
 
-    const showImg = (k: number) => imgs.forEach((im, j) => im.classList.toggle('is-cur', j === k));
-
-    const set = (i: number) => {
-      if (i === current) return;
-      current = i;
-      const n = i + 1;
-      stepEls.forEach((el, k) => {
-        el.classList.toggle('is-active', k === i);
-        el.classList.toggle('is-past', k < i);
-        el.setAttribute('aria-hidden', String(k !== i));
+    const paint = (n: number) => {
+      const s = data[n - 1];
+      $('[data-num]').textContent = pad(n);
+      $('[data-title]').textContent = s.t;
+      $('[data-desc]').textContent = s.d;
+      const extra = $('[data-extra]');
+      extra.hidden = !s.x; extra.textContent = s.x;
+      $('[data-count]').innerHTML = `${pad(n)} <span>/ ${pad(total)}</span>`;
+      segs.forEach((b, i) => {
+        b.classList.toggle('is-done', i + 1 < n);
+        b.setAttribute('aria-selected', String(i + 1 === n));
+        b.querySelector('b')!.style.transform = i + 1 < n ? 'scaleX(1)' : 'scaleX(0)';
       });
-      dots.forEach((d, k) => { d.classList.toggle('is-active', k === i); d.classList.toggle('is-done', k < i); });
-      count.textContent = String(n).padStart(2, '0');
-
-      clearTimeout(landTimer);
-      showImg(i);
-      sec.classList.toggle('is-light-on', n >= LIGHT_FROM);
-      sec.classList.remove('is-light-full', 'is-glow');
-      // Крок 8: деталі декору ще «в повітрі» — за мить сідають на місце, і світло горить на повну
-      if (n >= total) landTimer = window.setTimeout(() => { showImg(FINAL); sec.classList.add('is-light-full'); }, reduced ? 0 : 700);
+      posters.forEach((p, i) => p.classList.toggle('is-cur', i + 1 === n));
     };
 
-    // Наведення на синю смугу — світло розгоряється, як від лампи; на сенсорних — від дотику
-    hit.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') sec.classList.add('is-glow'); });
-    hit.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') sec.classList.remove('is-glow'); });
-    let tapTimer: number | undefined;
-    hit.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'mouse') return;
-      sec.classList.add('is-glow');
-      clearTimeout(tapTimer);
-      tapTimer = window.setTimeout(() => sec.classList.remove('is-glow'), 2500);
+    // Текст: старий іде вгору на 8 px і тане за 160 мс, новий приходить знизу за 320 мс
+    const showText = (from: number, to: number) => {
+      if (reduce || !swap.animate) { paint(to); return; }
+      const dir = to > from || (from === total && to === 1) ? 1 : -1;
+      swap.animate([{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: `translateY(${-8 * dir}px)` }], { duration: 160, easing: 'ease-in', fill: 'forwards' })
+        .finished.then(() => {
+          paint(to);
+          swap.animate([{ opacity: 0, transform: `translateY(${10 * dir}px)` }, { opacity: 1, transform: 'translateY(0)' }], { duration: 320, easing: 'cubic-bezier(0.23,1,0.32,1)', fill: 'forwards' });
+        });
+    };
+
+    const goTo = (n: number) => {
+      if (n === stage) return;
+      const from = stage; stage = n;
+      showText(from, n);
+      door?.goTo(n);
+    };
+
+    // Автоперемикання: таймер іде, лише коли блок на екрані й не під курсором / фокусом
+    let elapsed = 0, last = 0, paused = false, visible = false, raf = 0;
+    const tick = (now: number) => {
+      raf = 0;
+      if (paused || !visible) return;
+      elapsed += now - last; last = now;
+      const k = Math.min(1, elapsed / STEP_MS);
+      const bar = segs[stage - 1]?.querySelector('b');
+      if (bar) bar.style.transform = `scaleX(${k})`;
+      if (k >= 1) { elapsed = 0; goTo(next()); }
+      raf = requestAnimationFrame(tick);
+    };
+    const run = () => { if (!raf && visible && !paused) { last = performance.now(); raf = requestAnimationFrame(tick); } };
+    const user = (n: number) => { elapsed = 0; goTo(n); };
+
+    segs.forEach((b) => b.addEventListener('click', () => user(Number(b.dataset.seg))));
+    $('[data-prev]').addEventListener('click', () => user(prev()));
+    $('[data-next]').addEventListener('click', () => user(next()));
+    sec.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') paused = true; });
+    sec.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { paused = false; run(); } });
+    sec.addEventListener('focusin', () => { paused = true; });
+    sec.addEventListener('focusout', (e) => { if (!sec.contains(e.relatedTarget as Node)) { paused = false; run(); } });
+    sec.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') user(next());
+      if (e.key === 'ArrowLeft') user(prev());
+    });
+    // Свайп по картинці (≥ 40 px по горизонталі)
+    let sx: number | null = null, sy = 0;
+    card.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; });
+    card.addEventListener('pointerup', (e) => {
+      if (sx === null) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) user(dx < 0 ? next() : prev());
     });
 
-    const headerH = () => parseFloat(getComputedStyle(root).getPropertyValue('--header-h')) || 76;
-    const update = () => {
-      const r = track.getBoundingClientRect();
-      const run = track.offsetHeight - pin.offsetHeight;
-      const p = Math.min(1, Math.max(0, (headerH() - r.top) / run));
-      set(Math.min(total - 1, Math.floor(p * total * 0.9999)));
-    };
+    new IntersectionObserver(([en]) => { visible = en.isIntersecting; run(); }, { threshold: 0.35 }).observe(sec);
 
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => { update(); ticking = false; });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    update();
-
-    dots.forEach((d) => d.addEventListener('click', () => {
-      const i = Number(d.dataset.dot);
-      const run = track.offsetHeight - pin.offsetHeight;
-      const top = track.getBoundingClientRect().top + window.scrollY - headerH() + ((i + 0.5) / total) * run;
-      window.scrollTo({ top, behavior: 'smooth' });
-    }));
+    // Сцена з деталями — коли блок наближається до екрана
+    const lazy = new IntersectionObserver(async (entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      lazy.disconnect();
+      const { mountDoor } = await import('../lib/lego/door.js');
+      door = mountDoor(canvas, card);
+      if (!door) return; // без WebGL лишаються PNG
+      door.goTo(stage, { instant: true });
+      requestAnimationFrame(() => card.classList.add('is-live'));
+    }, { rootMargin: '600px 0px' });
+    lazy.observe(sec);
   }
 </script>

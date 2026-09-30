@@ -57,7 +57,10 @@ collections:
               - { label: "Заголовок (для пошуковиків)", name: title, widget: string, i18n: true }
               - { label: "Примітка після етапу 03", name: prepayNote, widget: string, i18n: true }
               - { label: "Кнопка «детально»", name: detailsLabel, widget: string, i18n: true }
-              - { label: "Кнопка на фіналі", name: finalCta, widget: string, i18n: true }
+              - { label: "Підпис «карусель» (для екранних читалок)", name: carouselLabel, widget: string, i18n: true }
+              - { label: "Підпис смужки етапів", name: stageLabel, widget: string, i18n: true }
+              - { label: "Кнопка «попередній етап»", name: prevLabel, widget: string, i18n: true }
+              - { label: "Кнопка «наступний етап»", name: nextLabel, widget: string, i18n: true }
               - label: Етапи (рівно 8 — під 8 кроків ілюстрації)
                 name: steps
                 widget: list
@@ -153,6 +156,27 @@ collections:
               - { label: "Назва", name: title, widget: string, i18n: true }
               - { label: "Короткий рядок", name: text, widget: string, i18n: true }
 
+      - name: automation
+        label: Автоматизація
+        file: content/{{locale}}/automation.json
+        i18n: true
+        fields:
+          - { label: "Надзаголовок", name: eyebrow, widget: string, i18n: true }
+          - { label: "Заголовок", name: title, widget: string, i18n: true }
+          - { label: "Підзаголовок", name: text, widget: text, i18n: true }
+          - { label: "Заголовок кроків", name: stepsTitle, widget: string, i18n: true }
+          - label: "Кроки (4)"
+            name: steps
+            widget: list
+            i18n: true
+            fields:
+              - { label: "Назва", name: title, widget: string, i18n: true }
+              - { label: "Текст", name: text, widget: text, i18n: true }
+          - { label: "Заголовок прикладів", name: examplesTitle, widget: string, i18n: true }
+          - { label: "Приклади (плашки, без цифр)", name: examples, widget: list, i18n: true }
+          - { label: "Рядок-принцип", name: principle, widget: string, i18n: true }
+          - { label: "Кнопка", name: button, widget: string, i18n: true }
+
       - name: pricing
         label: Ціни
         file: content/{{locale}}/pricing.json
@@ -176,6 +200,7 @@ collections:
               - { label: "Виділити пакет", name: featured, widget: boolean, i18n: duplicate, default: false }
               - { label: "Входить", name: includes, widget: list, i18n: true }
               - { label: "Не входить", name: excludes, widget: list, i18n: true }
+          - { label: "Рядок під цінами (про договір)", name: priceNote, widget: string, i18n: true }
           - { label: "Рядок під таблицею", name: note, widget: string, i18n: true }
           - { label: "Заголовок «Як працюємо з оплатою»", name: paymentTitle, widget: string, i18n: true }
           - label: Кроки оплати

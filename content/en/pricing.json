@@ -9,34 +9,81 @@
   "packages": [
     {
       "name": "Landing page",
-      "price": "$600",
+      "price": "from $600",
       "term": "3 business days",
       "featured": false,
-      "includes": ["1 long page", "Mobile-friendly", "Lead form to your email", "Basic SEO", "Copy based on your brief", "Hosting & SSL for a year", "1-year warranty", "The code is yours"],
-      "excludes": ["Admin panel", "Multiple languages"]
+      "includes": [
+        "1 long page",
+        "Mobile-friendly",
+        "Lead form to your email",
+        "Basic SEO",
+        "Copy based on your brief",
+        "Hosting & SSL for a year",
+        "1-year warranty",
+        "The code is yours"
+      ],
+      "excludes": [
+        "Admin panel",
+        "Multiple languages"
+      ]
     },
     {
       "name": "Business website",
-      "price": "$1,000",
+      "price": "from $1,000",
       "term": "7 business days",
       "featured": true,
-      "includes": ["Up to 5 pages", "Admin panel", "Forms", "SEO structure", "Google Analytics + Search Console", "Hosting & SSL for a year", "1-year warranty", "The code is yours"],
-      "excludes": ["Online store", "CRM integrations (extra)"]
+      "includes": [
+        "Up to 5 pages",
+        "Admin panel",
+        "Forms",
+        "SEO structure",
+        "Google Analytics + Search Console",
+        "Hosting & SSL for a year",
+        "1-year warranty",
+        "The code is yours"
+      ],
+      "excludes": [
+        "Online store",
+        "CRM integrations (extra)"
+      ]
     },
     {
       "name": "Online store",
-      "price": "$1,500",
+      "price": "from $1,500",
       "term": "14 business days",
       "featured": false,
-      "includes": ["Catalog up to 100 products", "Cart", "Online payments", "Delivery integration", "Admin panel", "Category SEO", "Hosting & SSL for a year", "1-year warranty"],
-      "excludes": ["Over 100 products (extra)", "Marketplace feeds (extra)", "Inventory management (extra)"]
+      "includes": [
+        "Catalog up to 100 products",
+        "Cart",
+        "Online payments",
+        "Delivery integration",
+        "Admin panel",
+        "Category SEO",
+        "Hosting & SSL for a year",
+        "1-year warranty"
+      ],
+      "excludes": [
+        "Over 100 products (extra)",
+        "Marketplace feeds (extra)",
+        "Inventory management (extra)"
+      ]
     }
   ],
   "note": "Catalog websites, automation, bots and other projects — priced per task.",
   "paymentTitle": "How payment works",
   "payment": [
-    { "title": "Prototype — free", "text": "A clickable homepage in 48–72 hours." },
-    { "title": "Like it — 50%", "text": "Prepayment, and we start." },
-    { "title": "The rest — after launch", "text": "Once the site is live and you've checked everything." }
-  ]
+    {
+      "title": "Prototype — free",
+      "text": "A clickable homepage in 48–72 hours."
+    },
+    {
+      "title": "Like it — 50%",
+      "text": "Prepayment, and we start."
+    },
+    {
+      "title": "The rest — after launch",
+      "text": "Once the site is live and you've checked everything."
+    }
+  ],
+  "priceNote": "We fix the exact amount in the contract after the free prototype."
 }
