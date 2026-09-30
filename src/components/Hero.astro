@@ -21,7 +21,6 @@ const lines = hero.title.split(/(?<=[.!?])\s+/);
       <a class="btn" href="#contact" data-cta="hero"><DoorIcon />{hero.primary}</a>
       <a class="btn btn--ghost" href="#pricing" data-cta="hero-prices">{hero.secondary}</a>
     </div>
-    <p class="hero-note">{hero.note}</p>
     </div>
   </div>
 </section>
@@ -75,7 +74,6 @@ const lines = hero.title.split(/(?<=[.!?])\s+/);
   @keyframes rise { from { opacity: 0; transform: translateY(.35em); } to { opacity: 1; transform: none; } }
   .hero-lead { font-size: clamp(1.25rem, 2vw, 1.625rem); line-height: 1.45; max-width: 30ch; margin-top: clamp(24px, 3.5vw, 36px); color: var(--ink); }
   .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
-  .hero-note { margin-top: 18px; font-size: 16px; color: var(--ink-2); }
 
   @media (max-width: 900px) {
     .hero-inner { grid-template-columns: 1fr; gap: 20px; padding-block: 28px 48px; }

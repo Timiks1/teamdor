@@ -33,7 +33,6 @@ collections:
               - { label: "Рядок під заголовком", name: lead, widget: text, i18n: true }
               - { label: "Головна кнопка", name: primary, widget: string, i18n: true }
               - { label: "Друга кнопка", name: secondary, widget: string, i18n: true }
-              - { label: "Примітка під кнопками", name: note, widget: string, i18n: true }
           - label: «Звучить знайомо?»
             name: pain
             widget: object
