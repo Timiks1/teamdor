@@ -18,6 +18,7 @@ export const PL = 3.2;   // plate height
 export const SR = 2.4;   // stud radius (Ø4.8)
 export const SH = 1.7;   // stud height
 const GAP = 0.12;        // visual seam between neighbouring bricks
+export const MAX_PLATE_STUDS = 8; // пластина більша за 2×4 — без шипів
 
 /* ---- palette: only for the brick illustrations ---- */
 export const COLORS = {
@@ -135,6 +136,8 @@ export class Part {
   }
   /* brick / plate / tile on the stud grid: w,d in studs, h in plates */
   block(x, y, z, w, d, hPlates, { studs = true } = {}) {
+    // Великі пластини — гладкі плитки: сотні шипів дають «брудний» вигляд. Шипи лишаються на цеглинках і дрібних деталях.
+    if (hPlates === 1 && w * d > MAX_PLATE_STUDS) studs = false;
     const h = hPlates * PL; this.box(x, y, z, w * P, h, d * P);
     if (studs) for (let i = 0; i < w; i++) for (let j = 0; j < d; j++) this.stud(x + (i + .5) * P, y + h, z + (j + .5) * P);
     return this;
