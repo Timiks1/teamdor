@@ -150,7 +150,7 @@ collections:
                 name: icon
                 widget: select
                 i18n: duplicate
-                options: [landing, business, catalog, shop, automation, bots, redesign, support, seo, branding, custom]
+                options: [landing, business, catalog, shop, automation, bots, redesign, support, branding, custom]
               - { label: "Назва", name: title, widget: string, i18n: true }
               - { label: "Короткий рядок", name: text, widget: string, i18n: true }
 

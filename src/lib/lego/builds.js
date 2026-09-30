@@ -92,12 +92,6 @@ export const BUILDS = {
       });
     } };
   },
-  // SEO та реклама: колони по черзі підростають — зростання
-  seo() {
-    const k = new Kit(); k.part('white').block(-32, 0, -8, 8, 2, 1).finish(); const cols = [];
-    for (let i = 0; i < 4; i++) { const p = k.part(i === 3 ? 'blue' : 'navy'); p.block(-32 + i * 16, PL, -8, 2, 2, 3 * (i + 1)); p.finish(); cols.push(p); }
-    return { kit: k, box: grow(k, 6), update(t) { cols.forEach((p, i) => p.set(1, 4 * restLift(t, 6200, -i * 0.08, 0.55))); } };
-  },
   // Брендинг і дизайн: маленькі двері-знак, стулка повільно прочиняється й прикривається
   branding() {
     const k = new Kit(); const Y0 = PL;
