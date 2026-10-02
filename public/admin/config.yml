@@ -59,12 +59,12 @@ collections:
               - { label: "Підпис смужки етапів", name: stageLabel, widget: string, i18n: true }
               - { label: "Кнопка «попередній етап»", name: prevLabel, widget: string, i18n: true }
               - { label: "Кнопка «наступний етап»", name: nextLabel, widget: string, i18n: true }
-              - label: Етапи (рівно 8 — під 8 кроків ілюстрації)
+              - label: "Етапи (6)"
                 name: steps
                 widget: list
                 i18n: true
-                min: 8
-                max: 8
+                min: 6
+                max: 6
                 fields:
                   - { label: "Назва", name: title, widget: string, i18n: true }
                   - { label: "Коротка фраза", name: text, widget: text, i18n: true }

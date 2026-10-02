@@ -1,7 +1,7 @@
 // @ts-nocheck
-// Двері для блоку «Етапи» (дод. ТЗ v0.2, п. 2): одна сцена, деталі проявляються над місцем і опускаються.
-// 1 база · 2 поріг і доріжка · 3 колони · 4 арка · 5 стулка · 6 деталі · 7 світло · 8 двері відчиняються ширше
-import { THREE, Kit, P, BR, PL } from './kit.js';
+// Двері для блоку «Етапи»: одна сцена з деталей (дод. ТЗ v0.2, фізика — v0.3 п. 3).
+// Деталі не проходять крізь деталі: кожна сідає на опору й лише тоді, коли над нею вільно; стулка — до арки.
+import { THREE, Kit, P, BR, PL, SH } from './kit.js';
 
 export const HOVER = 40; // мм — висота, з якої опускається деталь
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -21,14 +21,29 @@ export function buildDoor() {
     for (let k = 0; k < 2; k++) add(3, 'navy', (p) => p.block(x, Y_SILL + 6 * BR + k * PL, ZB, 1, 2, 1));
   }
   for (const [a0, a1] of [[0, Math.PI / 2], [Math.PI / 2, Math.PI]]) add(4, 'navy', (p) => p.arch(0, Y_SPRING, 44, 36, a0, a1, ZB, 16));
-  const leaf = add(5, 'white', (p) => {
-    const W = 47.4, HX = -35.4, top = (lx) => Y_SPRING + Math.sqrt(Math.max(0, 1296 - (HX + lx) ** 2)) - 1.6;
-    const s = new THREE.Shape(); s.moveTo(0, Y_SILL); s.lineTo(W, Y_SILL);
-    for (let i = 0; i <= 48; i++) { const lx = W - (W * i) / 48; s.lineTo(lx, top(lx)); }
-    s.closePath(); p.extrude(s, -4, 8);
-  });
-  leaf.group.position.set(-35.4, 0, (ZB + ZF) / 2);
+  // Стулка. Петля на 4 мм правіше від лівої колони, щоб на всьому повороті (−30°…−62°) стулка її не зачіпала.
+  // Верх стулки рахуємо за формою арки: у кожній точці, що на будь-якому куті потрапляє в товщу арки,
+  // між верхом стулки й внутрішнім краєм арки лишається ≥ 1,5 мм.
+  const HX = -31.5, LEAF_W = 43.5, LEAF_T = 4, ZC = (ZB + ZF) / 2, R_IN = 36;
   const LEAF_AJAR = THREE.MathUtils.degToRad(-30), LEAF_OPEN = THREE.MathUtils.degToRad(-62);
+  const archInner = (x) => (Math.abs(x) < R_IN ? Y_SPRING + Math.sqrt(R_IN * R_IN - x * x) : Y_SPRING);
+  const leafTop = (lx) => {
+    let top = archInner(HX + lx) - 1.6;
+    for (let deg = -64; deg <= -28; deg += 1) {
+      const a = THREE.MathUtils.degToRad(deg), c = Math.cos(a), sn = Math.sin(a);
+      for (const lz of [-LEAF_T, LEAF_T]) {
+        const wx = HX + lx * c + lz * sn, wz = ZC - lx * sn + lz * c;
+        if (wz > ZB - 0.5 && wz < ZF + 0.5) top = Math.min(top, archInner(wx) - 1.6);
+      }
+    }
+    return top;
+  };
+  const leaf = add(5, 'white', (p) => {
+    const s = new THREE.Shape(); s.moveTo(0, Y_SILL); s.lineTo(LEAF_W, Y_SILL);
+    for (let i = 0; i <= 64; i++) { const lx = LEAF_W - (LEAF_W * i) / 64; s.lineTo(lx, leafTop(lx)); }
+    s.closePath(); p.extrude(s, -LEAF_T, 2 * LEAF_T);
+  });
+  leaf.group.position.set(HX, 0, ZC);
   leaf.group.rotation.y = LEAF_AJAR;
 
   add(6, 'navy', (p) => p.block(44, Y_BASE, 8, 2, 1, 3, { studs: false }));
@@ -46,6 +61,7 @@ export function buildDoor() {
   }
   for (let k = 0; k < 2; k++) add(6, 'white', (p) => p.cylinder(-52, Y_BASE + k * BR, 8, 7.85, BR).stud(-56, Y_BASE + (k + 1) * BR, 4).stud(-48, Y_BASE + (k + 1) * BR, 4).stud(-56, Y_BASE + (k + 1) * BR, 12).stud(-48, Y_BASE + (k + 1) * BR, 12));
   for (const [x, z, c] of [[-68, -48, 'navy'], [60, -48, 'blue'], [-68, 40, 'blue'], [60, 40, 'navy']]) add(6, c, (p) => p.block(x, Y_BASE, z, 1, 1, 3));
+  const arches = parts.filter((p) => p.stage === 4);
   const light = add(7, 'blue', (p) => {
     const yb = Y_SILL, H = 76.8, s = new THREE.Shape();
     s.moveTo(12, yb + 8); s.lineTo(12, yb + H - 8); s.absarc(20, yb + H - 8, 8, Math.PI, 0, true);
@@ -87,7 +103,7 @@ export function buildDoor() {
   }
 
   const fitBox = kit.bounds(); fitBox.max.y += HOVER * 0.55;
-  return { kit, parts, clusters, leaf, LEAF_AJAR, LEAF_OPEN, fitBox };
+  return { kit, parts, clusters, leaf, arches, LEAF_AJAR, LEAF_OPEN, fitBox };
 }
 
 /** Миттєвий стан сцени для етапу n (для PNG-заглушок і «без руху»). */
@@ -118,26 +134,76 @@ export function mountDoorScrub(canvas, card) {
 
   const FALL = reduce ? 0 : 260;   // мм — звідки падає деталь (з-за верхнього краю картки)
   const DUR = 0.16;                // тривалість падіння в частках прокрутки: кілька деталей летять одночасно
+  const TOL = 0.5;                 // мм — допуск при порівнянні габаритів
   const base = parts.filter((p) => p.stage === 1);
   const light = parts.find((p) => p.isLight);
-  const rest = parts.filter((p) => p.stage !== 1 && p !== leaf && !p.isLight);
-  // врізнобій, але знизу вгору: джиттер менший за висоту цеглинки, тож верхня не обжене нижню
-  const keyed = rest.map((p) => ({ p, k: p.restBox().min.y + rand() * BR * 0.9 })).sort((a, b) => a.k - b.k);
+  const solid = parts.filter((p) => p.stage !== 1 && !p.isLight);
+
+  // Граф «що на чому стоїть»: якщо габарити двох деталей перетинаються в плані,
+  // нижня сідає раніше за верхню (опора + вільний шлях згори). Стулка — раніше за арку (п. 3.3).
+  const boxes = new Map(solid.map((p) => [p, p.restBox()]));
+  const overlapXZ = (a, b) => a.min.x < b.max.x - TOL && b.min.x < a.max.x - TOL && a.min.z < b.max.z - TOL && b.min.z < a.max.z - TOL;
+  const before = new Map(solid.map((p) => [p, new Set()])); // p → деталі, що мають сісти раніше
+  for (const a of solid) for (const b of solid) {
+    if (a === b) continue;
+    const A = boxes.get(a), B = boxes.get(b);
+    // шипи нижньої деталі входять у верхню на SH — це опора, не перетин
+    if (overlapXZ(A, B) && A.max.y <= B.min.y + SH + TOL) before.get(b).add(a);
+  }
+  for (const arch of d.arches) before.get(arch).add(leaf);
+
+  // Топологічний порядок із випадковим вибором серед деталей, які вже можна ставити — «врізнобій, як дощ»
+  const order = [], placed = new Set();
+  while (order.length < solid.length) {
+    const ready = solid.filter((p) => !placed.has(p) && [...before.get(p)].every((q) => placed.has(q)));
+    const pick = ready[Math.floor(rand() * ready.length)];
+    order.push(pick); placed.add(pick);
+  }
   const plan = new Map();
   base.forEach((p) => plan.set(p, { land: 0.08, fall: FALL * 0.25 }));
-  keyed.forEach(({ p }, i) => plan.set(p, { land: 0.16 + (0.68 * i) / Math.max(1, keyed.length - 1), fall: FALL }));
-  plan.set(leaf, { land: 0.9, fall: FALL });
+  order.forEach((p, i) => plan.set(p, { land: 0.16 + (0.64 * i) / Math.max(1, order.length - 1), fall: FALL }));
 
   const clamp01 = (x) => Math.min(1, Math.max(0, x));
   const soft = (k) => 1 - Math.pow(1 - k, 3); // швидко згори, м'яка посадка
 
+  // Dev-перевірка (п. 3.6): на кожному кадрі габарити деталі в русі проти габаритів інших деталей.
+  // Арка й стулка вкладені одна в одну (габарит арки охоплює проріз), тому цю пару перевірено аналітично при побудові.
+  const DEV = import.meta.env?.DEV;
+  const warned = new Set();
+  const nested = (a, b) => (d.arches.includes(a) && b === leaf) || (d.arches.includes(b) && a === leaf);
+  // Перетин: у плані глибше за допуск, по висоті — глибше, ніж заходить шип у деталь над ним
+  const clash = (A, B) => {
+    const ox = Math.min(A.max.x, B.max.x) - Math.max(A.min.x, B.min.x);
+    const oz = Math.min(A.max.z, B.max.z) - Math.max(A.min.z, B.min.z);
+    const oy = Math.min(A.max.y, B.max.y) - Math.max(A.min.y, B.min.y);
+    return ox > TOL && oz > TOL && oy > SH + TOL;
+  };
+  function devCheck(moving) {
+    const live = solid.filter((p) => p.op > 0.01).concat(base);
+    for (const m of moving) {
+      const M = new THREE.Box3().setFromObject(m.group);
+      for (const o of live) {
+        if (o === m || nested(m, o)) continue;
+        if (clash(M, new THREE.Box3().setFromObject(o.group))) {
+          const key = parts.indexOf(m) + ':' + parts.indexOf(o);
+          if (!warned.has(key)) { warned.add(key); console.warn('[lego] деталі перетинаються', { moving: parts.indexOf(m), other: parts.indexOf(o) }); }
+        }
+      }
+    }
+  }
+
   function setProgress(p) {
+    const moving = [];
     for (const [part, pl] of plan) {
       const k = clamp01((p - (pl.land - DUR)) / DUR);
       part.set(clamp01(k / 0.2), pl.fall * (1 - soft(k)));
+      if (k > 0 && k < 1) moving.push(part);
     }
-    if (light) light.set(clamp01((p - 0.92) / 0.03), 0);
-    leaf.group.rotation.y = LEAF_AJAR + (LEAF_OPEN - LEAF_AJAR) * soft(clamp01((p - 0.95) / 0.05));
+    if (light) light.set(clamp01((p - 0.86) / 0.04), 0);
+    const open = soft(clamp01((p - 0.92) / 0.08));
+    leaf.group.rotation.y = LEAF_AJAR + (LEAF_OPEN - LEAF_AJAR) * open;
+    if (open > 0 && open < 1 && !moving.includes(leaf)) moving.push(leaf);
+    if (DEV && moving.length) devCheck(moving);
     renderer.render(kit.scene, kit.camera);
   }
 

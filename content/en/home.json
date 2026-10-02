@@ -34,14 +34,9 @@
     "detailsLabel": "Every stage in detail",
     "steps": [
       {
-        "title": "Brief",
-        "text": "We learn about your business, your clients and the goal of the site.",
-        "details": "A short 20–30 minute call. We ask in plain words: what you do, who your clients are, what the website should do. We write the spec ourselves — you don't need to prepare anything."
-      },
-      {
-        "title": "Research",
-        "text": "We study your competitors and niche to find what makes you stand out.",
-        "details": "We look at competitors' websites — what works and what doesn't. We find what makes you different, so clients choose you."
+        "title": "Brief & research",
+        "text": "We learn about your business, clients and competitors — and find what makes you stand out.",
+        "details": "A short 20–30 minute call in plain words: what you do, who your clients are, what the website should do. Then we study competitors' websites and look for what can set you apart. We write the spec ourselves — you don't need to prepare anything."
       },
       {
         "title": "Free prototype",
@@ -49,24 +44,19 @@
         "details": "We build a clickable prototype of the homepage: open it on your phone, scroll, tap the buttons. It's free and you owe us nothing."
       },
       {
-        "title": "Moodboard",
-        "text": "We agree on the style: colours, fonts, mood.",
-        "details": "We show a selection of colours, fonts and examples. You pick what feels right, so the design hits the mark from the start."
-      },
-      {
         "title": "Design",
-        "text": "First 2 screens, then the whole site in the approved style.",
-        "details": "We design two key screens first and approve them with you. Then the rest of the site in the same style. No surprises at the end."
+        "text": "We agree on the style: colours, fonts, mood. Then — every screen in that style.",
+        "details": "We show a selection of colours, fonts and examples — you pick what feels right. First we approve two key screens, then design the rest of the site in the same style. No surprises at the end."
       },
       {
-        "title": "Mobile",
-        "text": "Your site looks perfect on phones and tablets.",
-        "details": "Most clients open websites on their phones. So we check every screen on a phone, a tablet and a laptop."
+        "title": "Development & mobile",
+        "text": "We write the code. The site works on phones, tablets and computers.",
+        "details": "We write your site in code — no website builders. Most clients open websites on their phones, so we check every screen on a phone, a tablet and a laptop."
       },
       {
-        "title": "Build & launch",
-        "text": "We write the code, test buttons, forms and speed.",
-        "details": "We write your site in code — no website builders. We connect the domain, SSL, analytics and forms, check speed and every button. Then we launch."
+        "title": "Launch",
+        "text": "We test buttons, forms and speed — and open the site.",
+        "details": "We connect the domain, SSL, analytics and forms, check speed and every button — and open the site to your clients."
       },
       {
         "title": "Support",

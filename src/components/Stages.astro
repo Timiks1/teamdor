@@ -10,7 +10,7 @@ const { stages } = getContent(lang).home;
 const steps = stages.steps;
 const pad = (n: number) => String(n).padStart(2, '0');
 const first = steps[0];
-const data = steps.map((s, i) => ({ t: s.title, d: s.text, x: i === 2 ? stages.prepayNote : '' }));
+const data = steps.map((s, i) => ({ t: s.title, d: s.text, x: i === 1 ? stages.prepayNote : '' }));
 ---
 <section class="stages" id="stages" aria-labelledby="stages-title" data-stages>
   <div class="track" data-track>
@@ -59,7 +59,7 @@ const data = steps.map((s, i) => ({ t: s.title, d: s.text, x: i === 2 ? stages.p
             <div>
               <h3>{st.title}</h3>
               <p>{st.details}</p>
-              {i === 2 && <p class="more-note">{stages.prepayNote}</p>}
+              {i === 1 && <p class="more-note">{stages.prepayNote}</p>}
             </div>
           </li>
         ))}
